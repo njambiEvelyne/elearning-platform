@@ -4,9 +4,10 @@ from .permissions import IsInstructorOrReadOnly
 from .models import Course, Enrollment, Lesson
 from .serializers import CourseSerializer, LessonSerializer
 from rest_framework.permissions import IsAuthenticated
-import logging  
+import logging
 
 logger = logging.getLogger(__name__)
+
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -23,6 +24,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsInstructorOrReadOnly]
 
+
 class CourseDetailView(View):
     def get(self, request, course_id):
         course = get_object_or_404(Course, id=course_id)
@@ -32,53 +34,60 @@ class CourseDetailView(View):
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Course
-from .forms import CourseForm  
+from .forms import CourseForm
+
 
 @login_required
 def instructor_dashboard(request):
-    if request.user.role != 'instructor':  
-        return redirect('home')
+    if request.user.role != "instructor":
+        return redirect("home")
 
     courses = Course.objects.filter(instructor=request.user)
-    return render(request, 'courses/instructor_dashboard.html', {'courses': courses})
+    return render(request, "courses/instructor_dashboard.html", {"courses": courses})
 
 
 @login_required
 def add_course(request):
-    if request.user.role != 'instructor':  
-        return redirect('instructor_dashboard')
+    if request.user.role != "instructor":
+        return redirect("instructor_dashboard")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
             course = form.save(commit=False)
-            course.instructor = request.user  
+            course.instructor = request.user
             course.save()
-            return redirect('instructor_dashboard')
-        
+            return redirect("instructor_dashboard")
+
     else:
         form = CourseForm()
-    
-    return render(request, 'courses/add_course.html', {'form': form})
+
+    return render(request, "courses/add_course.html", {"form": form})
+
 
 @login_required
 def student_dashboard(request):
     """Display courses available for students or the ones they are enrolled in"""
-    
-    if request.user.role != 'student':  # Ensure only students can access
-        return redirect('home')
+
+    if request.user.role != "student":  # Ensure only students can access
+        return redirect("home")
 
     # Show only courses the student is enrolled in
     enrolled_courses = Course.objects.filter(enrollment__student=request.user)
 
-    return render(request, 'students/student_dashboard.html', {'courses': enrolled_courses})
+    return render(
+        request, "students/student_dashboard.html", {"courses": enrolled_courses}
+    )
+
 
 @login_required
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
-    
+    enrollment, created = Enrollment.objects.get_or_create(
+        user=request.user, course=course
+    )
+
     if created:
-        return redirect('student_dashboard')  
+        return redirect("student_dashboard")
     else:
-        return redirect('course_detail', course_id=course.id)
+        return redirect("course_detail", course_id=course.id)

@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsInstructorOrReadOnly(permissions.BasePermission):
     """
     Custom permission to allow only instructors to edit courses and lessons.

@@ -8,9 +8,11 @@ from .models import Enrollment
 from .serializers import EnrollmentSerializer
 from .forms import EnrollmentForm
 
+
 class EnrollmentViewSet(viewsets.ModelViewSet):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
+
 
 @login_required
 def enroll_course(request, course_id):
@@ -28,21 +30,25 @@ def enroll_course(request, course_id):
             enrollment = form.save(commit=False)
             enrollment.student = student  # Assign the logged-in student
             enrollment.course = course  # Assign the selected course
-            enrollment.course =course
+            enrollment.course = course
             enrollment.save()
             messages.success(request, "Enrollment successful!")
             return redirect("users:student_dashboard")  # Redirect to student dashboard
     else:
         form = EnrollmentForm(initial={"email": student.email})
 
-    return render(request, "enrollments/enroll_form.html", {"form": form, "course": course})
+    return render(
+        request, "enrollments/enroll_form.html", {"form": form, "course": course}
+    )
+
 
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 
+
 def enrollments_list(request):
-    enrollments = Enrollment.objects.select_related("student").all()  
-    paginator = Paginator(enrollments, 10) 
+    enrollments = Enrollment.objects.select_related("student").all()
+    paginator = Paginator(enrollments, 10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 

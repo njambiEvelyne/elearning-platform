@@ -8,23 +8,27 @@ from rest_framework import serializers
 
 User = get_user_model()
 
+
 class RegisterUserView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = AnswerSerializer
     permission_classes = [AllowAny]
 
+
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model=User
-        fields = 'id', 'username', 'email', 'password'
+        model = User
+        fields = "id", "username", "email", "password"
+
 
 def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
+    user = User.objects.create_user(
+        username=validated_data["username"],
+        email=validated_data["email"],
+        password=validated_data["password"],
+    )
+    return user

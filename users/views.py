@@ -10,6 +10,7 @@ from django.urls import reverse_lazy, reverse
 from .models import User
 from .forms import CustomUserCreationForm, UserCreationForm
 
+
 class UserViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer = UserSerializer
@@ -52,9 +53,10 @@ class RegisterUserView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        messages.success(self.request, "Account created successfully! You can now log in.")
+        messages.success(
+            self.request, "Account created successfully! You can now log in."
+        )
         return super().form_valid(form)
-    
 
 
 @login_required
@@ -80,17 +82,23 @@ def admin_dashboard(request):
 def instructor_dashboard(request):
     return render(request, "users/instructor_dashboard.html")
 
+
 from courses.models import Course
+
 
 @login_required
 def student_dashboard(request):
     enrolled_courses = Course.objects.filter(enrolled_students__student=request.user)
     available_courses = Course.objects.exclude(enrolled_students__student=request.user)
 
-    return render(request, 'users/student_dashboard.html', {
-        'enrolled_courses': enrolled_courses,
-        'available_courses': available_courses,
-    })
+    return render(
+        request,
+        "users/student_dashboard.html",
+        {
+            "enrolled_courses": enrolled_courses,
+            "available_courses": available_courses,
+        },
+    )
 
 
 def home(request):
@@ -106,7 +114,7 @@ def add_user(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("admin_dashboard")  
+            return redirect("admin_dashboard")
     else:
         form = UserCreationForm()
 
