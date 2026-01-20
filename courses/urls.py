@@ -6,20 +6,38 @@ from .views import (
     CourseViewSet,
     LessonViewSet,
     CourseDetailView,
+    LessonDetailView,
+    manage_lessons,
+    add_lesson,
+    edit_lesson,
+    delete_lesson,
+    student_dashboard,
+    enroll_course,
 )
-from enrollments.views import enroll_course
 
-app_name = "courses"  # Ensures the namespace is registered
+app_name = "courses"
 
 router = DefaultRouter()
-router.register(r"courses", CourseViewSet, basename="course")
-router.register(r"lessons", LessonViewSet, basename="lesson")
+router.register(r"api/courses", CourseViewSet, basename="course")
+router.register(r"api/lessons", LessonViewSet, basename="lesson")
 
 urlpatterns = [
-    path("enroll/<int:course_id>/", enroll_course, name="enroll_course"),
+    # Course management
+    path("", student_dashboard, name="student_dashboard"),
     path("instructor/", instructor_dashboard, name="instructor_dashboard"),
     path("instructor/add/", add_course, name="add_course"),
-    path("add/", add_course, name="add_course"),
-    path("", include(router.urls)),
     path("<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
+    path("<int:course_id>/enroll/", enroll_course, name="enroll_course"),
+    
+    # Lesson management for instructors
+    path("<int:course_id>/lessons/", manage_lessons, name="manage_lessons"),
+    path("<int:course_id>/lessons/add/", add_lesson, name="add_lesson"),
+    path("<int:course_id>/lessons/<int:lesson_id>/edit/", edit_lesson, name="edit_lesson"),
+    path("<int:course_id>/lessons/<int:lesson_id>/delete/", delete_lesson, name="delete_lesson"),
+    
+    # Lesson viewing for students
+    path("<int:course_id>/lessons/<int:lesson_id>/", LessonDetailView.as_view(), name="lesson_detail"),
+    
+    # API routes
+    path("", include(router.urls)),
 ]

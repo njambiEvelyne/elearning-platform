@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="lesson-container">
+    <div class="lesson-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'courses:course_detail' course.id %}">{{ course.title }}</a>
+                </li>
+                <li class="breadcrumb-item active">{{ lesson.title }}</li>
+            </ol>
+        </nav>
+        
+        <div class="lesson-title-section">
+            <h1>{{ lesson.title }}</h1>
+            {% if is_instructor %}
+                <div class="instructor-actions">
+                    <a href="{% url 'courses:edit_lesson' course.id lesson.id %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <span class="badge badge-{{ lesson.status }}">{{ lesson.get_status_display }}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="lesson-meta">
+            {% if lesson.duration_minutes > 0 %}
+                <span class="meta-item">
+                    <i class="far fa-clock"></i> {{ lesson.duration_minutes }} minutes
+                </span>
+            {% endif %}
+            <span class="meta-item">
+                <i class="far fa-calendar"></i> {{ lesson.created_at|date:"M d, Y" }}
+            </span>
+        </div>
+    </div>
+
+    <div class="lesson-content">
+        {% if lesson.video_url %}
+            <div class="video-section">
+                <h3><i class="fas fa-play-circle"></i> Video Content</h3>
+                <div class="video-container">
+                    <iframe src="{{ lesson.video_url }}" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="text-content">
+            <h3><i class="fas fa-file-text"></i> Lesson Content</h3>
+            <div class="content-text">
+                {{ lesson.content|linebreaks }}
+            </div>
+        </div>
+    </div>
+
+    <div class="lesson-navigation">
+        <h4><i class="fas fa-list"></i> Course Lessons</h4>
+        <div class="lessons-nav">
+            {% for nav_lesson in all_lessons %}
+                <div class="nav-lesson-item {% if nav_lesson.id == lesson.id %}active{% endif %}">
+                    <a href="{% url 'courses:lesson_detail' course.id nav_lesson.id %}">
+                        <span class="lesson-number">{{ forloop.counter }}</span>
+                        <span class="lesson-title">{{ nav_lesson.title }}</span>
+                        {% if nav_lesson.duration_minutes > 0 %}
+                            <span class="lesson-duration">{{ nav_lesson.duration_minutes }}min</span>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .lesson-container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .lesson-header {
+        margin-bottom: 30px;
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .lesson-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .lesson-title-section h1 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 28px;
+    }
+
+    .instructor-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .lesson-meta {
+        display: flex;
+        gap: 20px;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .meta-item i {
+        margin-right: 5px;
+    }
+
+    .lesson-content {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .video-section, .text-content {
+        padding: 30px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .text-content:last-child {
+        border-bottom: none;
+    }
+
+    .video-section h3, .text-content h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    .video-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .content-text {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .lesson-navigation {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 25px;
+    }
+
+    .lesson-navigation h4 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .lessons-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nav-lesson-item {
+        border-radius: 6px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .nav-lesson-item.active {
+        background: #007bff;
+    }
+
+    .nav-lesson-item.active a {
+        color: white;
+    }
+
+    .nav-lesson-item:not(.active):hover {
+        background: #e9ecef;
+    }
+
+    .nav-lesson-item a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        text-decoration: none;
+        color: #495057;
+        transition: color 0.3s ease;
+    }
+
+    .lesson-number {
+        background: #6c757d;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .nav-lesson-item.active .lesson-number {
+        background: white;
+        color: #007bff;
+    }
+
+    .lesson-title {
+        flex-grow: 1;
+        font-weight: 500;
+    }
+
+    .lesson-duration {
+        font-size: 12px;
+        color: #6c757d;
+        background: #e9ecef;
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+
+    .nav-lesson-item.active .lesson-duration {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .badge-published {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-draft {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    @media (max-width: 768px) {
+        .lesson-title-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .lesson-meta {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .video-section, .text-content {
+            padding: 20px;
+        }
+
+        .lesson-navigation {
+            padding: 20px;
+        }
+    }
+</style>
+
+{% endblock %}

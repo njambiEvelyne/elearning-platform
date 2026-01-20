@@ -4,72 +4,129 @@
 <div class="course-container">
     <div class="course-header">
         <h2>{{ course.title }}</h2>
+        {% if can_manage %}
+            <div class="instructor-actions">
+                <a href="{% url 'courses:manage_lessons' course.id %}" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i> Manage Lessons
+                </a>
+            </div>
+        {% endif %}
     </div>
 
     <div class="course-content">
         <p class="description">{{ course.description }}</p>
 
         <div class="course-info">
-            <p><i class="fas fa-chalkboard-teacher"></i> <strong>Instructor:</strong> {{ course.instructor }}</p>
-            <p><i class="far fa-clock"></i> <strong>Duration:</strong> {{ course.duration }} hours</p>
+            <p><i class="fas fa-chalkboard-teacher"></i> <strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+            <p><i class="far fa-calendar"></i> <strong>Created:</strong> {{ course.created_at|date:"M d, Y" }}</p>
+            <p><i class="fas fa-book"></i> <strong>Lessons:</strong> {{ lessons.count }}</p>
         </div>
 
-        <a href="{% url 'enrollments:enroll_course' course.id %}" class="btn btn-prim">🎓 Enroll Now</a>
+        {% if user.is_authenticated %}
+            {% if user.role == 'student' %}
+                {% if not is_enrolled %}
+                    <a href="{% url 'courses:enroll_course' course.id %}" class="btn btn-primary enroll-btn">
+                        🎓 Enroll Now
+                    </a>
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> You are enrolled in this course!
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <a href="{% url 'users:login' %}">Login</a> to enroll in this course.
+            </div>
+        {% endif %}
     </div>
+
+    {% if lessons and is_enrolled or can_manage %}
+        <div class="lessons-section">
+            <h3><i class="fas fa-list"></i> Course Lessons</h3>
+            <div class="lessons-list">
+                {% for lesson in lessons %}
+                    <div class="lesson-item">
+                        <div class="lesson-info">
+                            <h4>
+                                <a href="{% url 'courses:lesson_detail' course.id lesson.id %}">
+                                    {{ lesson.title }}
+                                </a>
+                            </h4>
+                            <p class="lesson-meta">
+                                {% if lesson.duration_minutes > 0 %}
+                                    <i class="far fa-clock"></i> {{ lesson.duration_minutes }} min
+                                {% endif %}
+                                {% if can_manage %}
+                                    <span class="badge badge-{{ lesson.status }}">{{ lesson.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="lesson-actions">
+                            <a href="{% url 'courses:lesson_detail' course.id lesson.id %}" class="btn btn-sm btn-outline-primary">
+                                View Lesson
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 </div>
 
 <style>
-    /* General container styling */
     .course-container {
-        max-width: 850px;
+        max-width: 900px;
         margin: 40px auto;
-        background: linear-gradient(135deg, #ffffff, #f3f3f3);
-        padding: 25px;
+        background: #ffffff;
+        padding: 30px;
         border-radius: 12px;
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        transition: transform 0.3s ease-in-out;
-    }
-    .course-container:hover {
-        transform: scale(1.02);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* Course title */
+    .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 20px;
+    }
+
     .course-header h2 {
         font-size: 32px;
         font-weight: bold;
         color: #2c3e50;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        margin: 0;
     }
 
-    /* Course description */
+    .instructor-actions .btn {
+        margin-left: 10px;
+    }
+
     .description {
         font-size: 18px;
         color: #555;
         line-height: 1.7;
         margin-bottom: 25px;
-        padding: 0 20px;
     }
 
-    /* Course information section */
     .course-info {
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
         margin-bottom: 25px;
+        gap: 15px;
     }
 
     .course-info p {
-        font-size: 18px;
-        font-weight: bold;
+        font-size: 16px;
         color: #34495e;
-        background: #ecf0f1;
-        padding: 10px 15px;
+        background: #f8f9fa;
+        padding: 12px 18px;
         border-radius: 8px;
-        display: inline-block;
-        transition: 0.3s ease-in-out;
+        margin: 0;
+        border-left: 4px solid #3498db;
     }
 
     .course-info p i {
@@ -77,33 +134,119 @@
         color: #3498db;
     }
 
-    /* Enroll button */
     .enroll-btn {
         display: inline-block;
         padding: 15px 30px;
-        background: #3498db;
+        background: #28a745;
         color: #fff;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         border-radius: 6px;
         text-decoration: none;
         transition: 0.3s ease-in-out;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     }
+
     .enroll-btn:hover {
-        background: #2980b9;
-        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.25);
+        background: #218838;
+        color: #fff;
+        text-decoration: none;
+        transform: translateY(-2px);
     }
 
-    /* Responsive adjustments */
+    .lessons-section {
+        margin-top: 40px;
+        border-top: 2px solid #e9ecef;
+        padding-top: 30px;
+    }
+
+    .lessons-section h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    .lessons-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .lesson-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #17a2b8;
+        transition: 0.3s ease;
+    }
+
+    .lesson-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .lesson-info h4 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+    }
+
+    .lesson-info h4 a {
+        color: #2c3e50;
+        text-decoration: none;
+    }
+
+    .lesson-info h4 a:hover {
+        color: #17a2b8;
+        text-decoration: underline;
+    }
+
+    .lesson-meta {
+        margin: 0;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .badge-published {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-draft {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
     @media (max-width: 768px) {
+        .course-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
         .course-info {
             flex-direction: column;
             align-items: center;
         }
-        .course-info p {
-            margin-bottom: 10px;
-            width: 80%;
+
+        .lesson-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .lesson-actions {
+            align-self: stretch;
         }
     }
 </style>
