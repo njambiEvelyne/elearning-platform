@@ -1,10 +1,15 @@
 from django.views import View
 from rest_framework import viewsets
 from .permissions import IsInstructorOrReadOnly
-from .models import Course, Enrollment, Lesson
+from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
+from enrollments.models import Enrollment
 from rest_framework.permissions import IsAuthenticated
 import logging
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Course
+from .forms import CourseForm
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +36,6 @@ class CourseDetailView(View):
         return render(request, "courses/course_detail.html", {"course": course})
 
 
-from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Course
-from .forms import CourseForm
 
 
 @login_required

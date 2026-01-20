@@ -31,9 +31,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["njambievelyne.pythonanywhere.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "njambievelyne.pythonanywhere.com"]
 
 AUTH_USER_MODEL = "users.User"
 
@@ -121,7 +121,7 @@ TEMPLATES = [
                 BASE_DIR / "elearning", "templates"
             ),  # Global template, base.html
             # users app templates
-            os.path.join(BASE_DIR, "users", "template"),
+            os.path.join(BASE_DIR, "users", "templates"),
             # Enrollment app templates
             os.path.join(BASE_DIR, "enrollments", "templates"),
         ],
@@ -198,11 +198,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Security setting
-SECURE_SSL_REDIRECT = True
-SECURE_HSTS_SECONDS = 31536000
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-X_FRAME_OPTIONS = "DENY"
+# Security settings - disabled for local development
+if DEBUG:
+    # Local development settings
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+    SECURE_BROWSER_XSS_FILTER = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+else:
+    # Production security settings
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    X_FRAME_OPTIONS = "DENY"

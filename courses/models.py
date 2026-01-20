@@ -42,13 +42,3 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class Enrollment(models.Model):
-    student = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="enrollments"
-    )
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="enrolled_students"
-    )  # Important: Use a related_name
-    enrolled_at = models.DateTimeField(auto_now_add=True)
