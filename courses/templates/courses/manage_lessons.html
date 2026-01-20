@@ -269,4 +269,47 @@
 
     .empty-icon {
         font-size: 64px;
-        margin-
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+
+    .empty-state p {
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .header-section {
+            flex-direction: column;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .header-actions {
+            justify-content: center;
+        }
+
+        .lessons-table th,
+        .lessons-table td {
+            padding: 10px 8px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+        }
+    }
+</style>
+
+{% endblock %}
