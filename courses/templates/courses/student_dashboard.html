@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="student-dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-graduation-cap"></i> Student Dashboard</h1>
+        <p class="welcome-message">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+    </div>
+
+    <!-- Enrolled Courses Section -->
+    <div class="courses-section">
+        <div class="section-header">
+            <h2><i class="fas fa-book-reader"></i> My Enrolled Courses ({{ enrolled_courses.count }})</h2>
+        </div>
+
+        {% if enrolled_courses %}
+            <div class="courses-grid">
+                {% for course in enrolled_courses %}
+                    <div class="course-card enrolled">
+                        <div class="course-header">
+                            <h3>
+                                <a href="{% url 'courses:course_detail' course.id %}">{{ course.title }}</a>
+                            </h3>
+                            <span class="enrollment-badge">
+                                <i class="fas fa-check-circle"></i> Enrolled
+                            </span>
+                        </div>
+                        <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                        <div class="course-meta">
+                            <span class="instructor">
+                                <i class="fas fa-chalkboard-teacher"></i> 
+                                {{ course.instructor.get_full_name|default:course.instructor.username }}
+                            </span>
+                            <span class="lesson-count">
+                                <i class="fas fa-list"></i> 
+                                {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }}
+                            </span>
+                        </div>
+                        <div class="course-actions">
+                            <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Continue Learning
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>No enrolled courses yet</h3>
+                <p>Start your learning journey by enrolling in a course below.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Available Courses Section -->
+    <div class="courses-section">
+        <div class="section-header">
+            <h2><i class="fas fa-search"></i> Available Courses ({{ available_courses.count }})</h2>
+        </div>
+
+        {% if available_courses %}
+            <div class="courses-grid">
+                {% for course in available_courses %}
+                    <div class="course-card available">
+                        <div class="course-header">
+                            <h3>
+                                <a href="{% url 'courses:course_detail' course.id %}">{{ course.title }}</a>
+                            </h3>
+                            <span class="availability-badge">
+                                <i class="fas fa-plus-circle"></i> Available
+                            </span>
+                        </div>
+                        <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                        <div class="course-meta">
+                            <span class="instructor">
+                                <i class="fas fa-chalkboard-teacher"></i> 
+                                {{ course.instructor.get_full_name|default:course.instructor.username }}
+                            </span>
+                            <span class="lesson-count">
+                                <i class="fas fa-list"></i> 
+                                {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }}
+                            </span>
+                        </div>
+                        <div class="course-actions">
+                            <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-info-circle"></i> View Details
+                            </a>
+                            <a href="{% url 'courses:enroll_course' course.id %}" class="btn btn-success">
+                                <i class="fas fa-user-plus"></i> Enroll Now
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No available courses</h3>
+                <p>Check back later for new courses.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .student-dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-header h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+        font-weight: 600;
+    }
+
+    .welcome-message {
+        margin: 0;
+        font-size: 18px;
+        opacity: 0.9;
+    }
+
+    .courses-section {
+        margin-bottom: 50px;
+    }
+
+    .section-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-header h2 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .course-card.enrolled {
+        border-color: #28a745;
+    }
+
+    .course-card.available {
+        border-color: #17a2b8;
+    }
+
+    .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .course-header h3 {
+        margin: 0;
+        font-size: 20px;
+        flex-grow: 1;
+        margin-right: 15px;
+    }
+
+    .course-header h3 a {
+        color: #2c3e50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .course-header h3 a:hover {
+        color: #007bff;
+    }
+
+    .enrollment-badge {
+        background: #d4edda;
+        color: #155724;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .availability-badge {
+        background: #d1ecf1;
+        color: #0c5460;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .course-description {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .course-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .course-meta span {
+        display: flex;
+        align-items: center;
+    }
+
+    .course-meta i {
+        margin-right: 8px;
+        width: 16px;
+    }
+
+    .course-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .course-actions .btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .course-actions .btn i {
+        margin-right: 6px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        border: none;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid #007bff;
+        color: #007bff;
+        background: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background: #007bff;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: #495057;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+
+    .empty-state p {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .course-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .course-actions {
+            flex-direction: column;
+        }
+
+        .course-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}
