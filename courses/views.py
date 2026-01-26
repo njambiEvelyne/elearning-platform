@@ -308,3 +308,25 @@ def unenroll_course(request, course_id):
         'instructor': course.instructor,
     }
     return render(request, "courses/unenroll_confirm.html", context)
+
+
+def courses_list(request):
+    """
+    Display all available courses for browsing.
+    Accessible to both authenticated and non-authenticated users.
+    """
+    courses = Course.objects.all().order_by('-created_at')
+    
+    # If user is authenticated and is a student, get their enrollments
+    enrolled_course_ids = []
+    if request.user.is_authenticated and request.user.role == 'student':
+        enrolled_course_ids = list(
+            Enrollment.objects.filter(student=request.user).values_list('course_id', flat=True)
+        )
+    
+    context = {
+        'courses': courses,
+        'enrolled_course_ids': enrolled_course_ids,
+        'total_courses': courses.count(),
+    }
+    return render(request, "courses/courses_list.html", context)

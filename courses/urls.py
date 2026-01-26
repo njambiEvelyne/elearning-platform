@@ -14,6 +14,7 @@ from .views import (
     student_dashboard,
     enroll_course,
     unenroll_course,
+    courses_list,
 )
 
 app_name = "courses"
@@ -25,6 +26,7 @@ router.register(r"api/lessons", LessonViewSet, basename="lesson")
 urlpatterns = [
     # Course management
     path("", student_dashboard, name="student_dashboard"),
+    path("browse/", courses_list, name="courses_list"),
     path("instructor/", instructor_dashboard, name="instructor_dashboard"),
     path("instructor/add/", add_course, name="add_course"),
     path("<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
