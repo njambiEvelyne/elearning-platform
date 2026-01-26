@@ -22,6 +22,28 @@
             <p><i class="fas fa-book"></i> <strong>Lessons:</strong> {{ lessons.count }}</p>
         </div>
 
+        {% if lessons.count > 0 %}
+            <div class="course-preview">
+                <h3><i class="fas fa-graduation-cap"></i> What You'll Learn</h3>
+                <div class="lessons-preview">
+                    {% for lesson in lessons|slice:":3" %}
+                        <div class="lesson-preview-item">
+                            <span class="lesson-number">{{ forloop.counter }}</span>
+                            <div class="lesson-preview-content">
+                                <h4>{{ lesson.title }}</h4>
+                                <p>{{ lesson.content|truncatewords:15 }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if lessons.count > 3 %}
+                        <div class="more-lessons">
+                            <span>+ {{ lessons.count|add:"-3" }} more lesson{{ lessons.count|add:"-3"|pluralize }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
         {% if user.is_authenticated %}
             {% if user.role == 'student' %}
                 {% if not is_enrolled %}
@@ -241,6 +263,81 @@
         color: #2c3e50;
         font-weight: 500;
         border: 1px solid rgba(50, 205, 50, 0.2);
+    }
+
+    .course-preview {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .course-preview h3 {
+        color: #2c3e50;
+        margin-bottom: 25px;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .lessons-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .lesson-preview-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        background: rgba(50, 205, 50, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #32CD32;
+        transition: all 0.3s ease;
+    }
+
+    .lesson-preview-item:hover {
+        background: rgba(50, 205, 50, 0.1);
+        transform: translateX(5px);
+    }
+
+    .lesson-number {
+        background: #32CD32;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .lesson-preview-content h4 {
+        margin: 0 0 8px 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .lesson-preview-content p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .more-lessons {
+        text-align: center;
+        padding: 15px;
+        background: rgba(50, 205, 50, 0.1);
+        border-radius: 12px;
+        color: #32CD32;
+        font-weight: 600;
+        border: 2px dashed rgba(50, 205, 50, 0.3);
     }
 
     .lessons-section {
