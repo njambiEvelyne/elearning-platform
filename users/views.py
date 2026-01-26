@@ -11,6 +11,13 @@ from .models import User
 from .forms import CustomUserCreationForm, UserCreationForm
 
 
+def custom_logout(request):
+    """Custom logout view that redirects to home page"""
+    logout(request)
+    messages.success(request, "You have been successfully logged out. Thank you for using our platform!")
+    return redirect('home')
+
+
 class UserViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer = UserSerializer

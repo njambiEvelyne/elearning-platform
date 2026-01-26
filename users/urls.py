@@ -17,7 +17,7 @@ urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path(
         "logout/",
-        LogoutView.as_view(next_page=reverse_lazy("users:login")),
+        LogoutView.as_view(next_page=reverse_lazy("home"), http_method_names=['get', 'post']),
         name="logout",
     ),
     path("register/", RegisterUserView.as_view(), name="register"),
