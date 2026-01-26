@@ -1,161 +1,275 @@
 {% extends "base.html" %}  
 
-{% block title %}Login{% endblock %}
+{% block title %}Sign In - E-Learning Platform{% endblock %}
 
 {% block content %}
 <style>
     body {
-        background: url('/static/images/library_background.jpg') no-repeat center center fixed;
-        background-size: cover;
-        color: white; /* Ensures text is readable */
-        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .container {
-        max-width: 600px;
-        margin: auto;
-        padding: 40px;
-        background-color: rgba(0, 0, 0, 0.7); /* Transparent black background */
-        border-radius: 15px;
-        color: white;
-        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    h2 {
-        font-size: 2.5em;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .tabs {
+    .login-wrapper {
+        min-height: 100vh;
         display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
     }
 
-    .tab-button {
-        padding: 12px 25px;
-        background-color: #32CD32; /* Luminous Green */
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 8px;
-        font-size: 1.1em;
-        transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .tab-button:hover {
-        background-color: darkgreen;
-        transform: scale(1.05);
-    }
-
-    .tab-button:focus {
-        outline: none;
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    .form-container {
-        padding-top: 20px;
-    }
-
-    .form-container input,
-    .form-container button {
-        padding: 12px;
-        border-radius: 8px;
-        margin-top: 10px;
-        font-size: 1.1em;
-        border: none;
-    }
-
-    .form-container input {
+    .login-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
         width: 100%;
-        background-color: #f4f4f4;
-        margin-bottom: 15px;
+        margin: 20px;
     }
 
-    .form-container input:focus {
-        background-color: white;
-        border: 2px solid #32CD32;
-    }
-
-    button {
-        background-color: limegreen;
+    .login-header {
+        background: linear-gradient(135deg, #32CD32, #28a745);
         color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        padding: 40px;
+        text-align: center;
+        position: relative;
     }
 
-    button:hover {
-        background-color: darkgreen;
-        transform: scale(1.05);
+    .login-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .login-header p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    .form-section {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #32CD32;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(50, 205, 50, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .form-control:hover {
+        border-color: #32CD32;
+        background-color: white;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #32CD32, #28a745);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(50, 205, 50, 0.4);
     }
 
     .register-link {
         text-align: center;
-        margin-top: 15px;
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 1px solid #e1e5e9;
     }
 
     .register-link a {
         color: #32CD32;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
     .register-link a:hover {
+        color: #28a745;
         text-decoration: underline;
+    }
+
+    .features-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .feature-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
+        margin-right: 12px;
+        color: #32CD32;
+    }
+
+    .feature-text {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .form-errors {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .form-errors ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .login-header {
+            padding: 30px 20px;
+        }
+        
+        .form-section {
+            padding: 30px 20px;
+        }
     }
 </style>
 
-<div class="container">
-    <h2>Login</h2>
-
-    <!-- Tabs for Library and Student Resources -->
-    <div class="tabs">
-        <button class="tab-button" onclick="showTab('library')">Library</button>
-        <button class="tab-button" onclick="showTab('student')">Student Resources</button>
-    </div>
-
-    <!-- Tab Content -->
-    <div id="library" class="tab-content">
-        <h3>Library Access</h3>
-        <p>Login to access the library and browse available books.</p>
-    </div>
-
-    <div id="student" class="tab-content active">
-        <h3>Student Resources</h3>
-        <p>Login to access your student resources and course materials.</p>
-    </div>
-
-    <!-- Login Form -->
-    <div class="form-container">
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Login</button>
-        </form>
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🎓 Welcome Back</h1>
+            <p>Sign in to continue your learning journey</p>
+        </div>
         
-        <!-- Register Link -->
-        <div class="register-link">
-            <p>Don't have an account? <a href="{% url 'users:register' %}">Register here</a></p>
+        <div class="form-section">
+            <!-- Features Section -->
+            <div class="features-section">
+                <div class="feature-item">
+                    <span class="feature-icon">📚</span>
+                    <span class="feature-text">Access your courses and materials</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-text">Track your learning progress</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">👥</span>
+                    <span class="feature-text">Connect with instructors and peers</span>
+                </div>
+            </div>
+
+            {% if form.errors %}
+                <div class="form-errors">
+                    <strong>Please correct the following errors:</strong>
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    <input type="text" 
+                           name="{{ form.username.name }}" 
+                           id="{{ form.username.id_for_label }}"
+                           class="form-control" 
+                           placeholder="Enter your username"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    <input type="password" 
+                           name="{{ form.password.name }}" 
+                           id="{{ form.password.id_for_label }}"
+                           class="form-control" 
+                           placeholder="Enter your password"
+                           required>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="register-link">
+                <p>Don't have an account? <a href="{% url 'users:register' %}">Create one here</a></p>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    function showTab(tabName) {
-        var tabs = document.querySelectorAll('.tab-content');
-        tabs.forEach(function(tab) {
-            tab.classList.remove('active');
-        });
-        document.getElementById(tabName).classList.add('active');
-    }
+    // Form validation
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('{{ form.username.id_for_label }}').value;
+        const password = document.getElementById('{{ form.password.id_for_label }}').value;
+        
+        if (!username.trim()) {
+            e.preventDefault();
+            alert('Please enter your username');
+            return false;
+        }
+        
+        if (!password.trim()) {
+            e.preventDefault();
+            alert('Please enter your password');
+            return false;
+        }
+    });
 </script>
 
 {% endblock %}
