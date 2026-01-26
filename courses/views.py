@@ -229,9 +229,48 @@ def student_dashboard(request):
     # Show available courses for enrollment
     available_courses = Course.objects.exclude(enrollment__student=request.user)
 
+    # Get or create progress data for enrolled courses
+    from progress.models import Progress, CourseProgress
+    course_progress_data = {}
+    
+    for course in enrolled_courses:
+        # Get or create course progress
+        try:
+            course_progress, created = CourseProgress.objects.get_or_create(
+                student=request.user,
+                course=course,
+                defaults={
+                    'total_lessons': course.lessons.filter(status='published').count(),
+                    'lessons_completed': 0,
+                    'progress_percentage': 0.0
+                }
+            )
+            
+            if created or course_progress.total_lessons != course.lessons.filter(status='published').count():
+                # Update progress if course structure changed
+                course_progress.update_progress()
+            
+            course_progress_data[course.id] = {
+                'percentage': round(course_progress.progress_percentage, 1),
+                'completed': course_progress.lessons_completed,
+                'total': course_progress.total_lessons
+            }
+        except:
+            # Fallback if CourseProgress model doesn't exist yet
+            total_lessons = course.lessons.filter(status='published').count()
+            completed_lessons = 0  # We'll implement this later
+            percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+            
+            course_progress_data[course.id] = {
+                'percentage': round(percentage, 1),
+                'completed': completed_lessons,
+                'total': total_lessons
+            }
+
     context = {
         'enrolled_courses': enrolled_courses,
-        'available_courses': available_courses
+        'available_courses': available_courses,
+        'course_progress_data': course_progress_data,
     }
     return render(request, "courses/student_dashboard.html", context)
 

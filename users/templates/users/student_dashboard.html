@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}Student Dashboard - {{ user.first_name|default:user.username }}{% endblock %}
 
@@ -485,18 +486,20 @@
                                     {{ course.instructor.first_name|default:course.instructor.username }}
                                 </div>
                                 <div class="course-lessons">
-                                    <span>📝</span>
-                                    {{ course.lessons.count }} lessons
+                                    <span>📋</span>
+                                    <a href="{% url 'courses:course_outline' course.id %}" style="color: inherit; text-decoration: none;">
+                                        View Outline
+                                    </a>
                                 </div>
                             </div>
 
                             <div class="progress-section">
                                 <div class="progress-header">
                                     <span class="progress-label">Progress</span>
-                                    <span class="progress-percentage">75%</span>
+                                    <span class="progress-percentage">{{ course_progress_data|lookup:course.id.percentage|default:0 }}%</span>
                                 </div>
                                 <div class="progress-bar-container">
-                                    <div class="progress-bar" style="width: 75%;"></div>
+                                    <div class="progress-bar" style="width: {{ course_progress_data|lookup:course.id.percentage|default:0 }}%;"></div>
                                 </div>
                             </div>
 
@@ -553,8 +556,10 @@
                                     {{ course.instructor.first_name|default:course.instructor.username }}
                                 </div>
                                 <div class="course-lessons">
-                                    <span>📝</span>
-                                    {{ course.lessons.count }} lessons
+                                    <span>📋</span>
+                                    <a href="{% url 'courses:course_outline' course.id %}" style="color: inherit; text-decoration: none;">
+                                        View Outline
+                                    </a>
                                 </div>
                             </div>
 
