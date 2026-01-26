@@ -1,0 +1,487 @@
+{% extends 'base.html' %}
+
+{% block title %}Unenrolled from {{ course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .unenrollment-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+    }
+
+    .unenrollment-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        max-width: 700px;
+        width: 100%;
+        margin: 20px;
+        position: relative;
+    }
+
+    .unenrollment-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #6c757d, #495057, #343a40);
+        animation: fade 3s ease-in-out infinite;
+    }
+
+    @keyframes fade {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .farewell-header {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .farewell-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="goodbye" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="2" fill="rgba(255,255,255,0.1)"/><path d="M5,5 L20,20 M20,5 L5,20" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23goodbye)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .farewell-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+        animation: wave 3s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+    }
+
+    @keyframes wave {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(10deg); }
+    }
+
+    .farewell-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .farewell-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.95;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+        font-weight: 300;
+    }
+
+    .unenrollment-content {
+        padding: 40px;
+    }
+
+    .confirmation-message {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .confirmation-text {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .course-summary {
+        background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(73, 80, 87, 0.1));
+        border: 2px solid rgba(108, 117, 125, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-summary::before {
+        content: '📚';
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 2rem;
+        opacity: 0.3;
+    }
+
+    .course-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    .course-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .stat-icon {
+        color: #6c757d;
+    }
+
+    .farewell-message {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+        border-left: 4px solid #28a745;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .farewell-message::before {
+        content: '🌟';
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 1.5rem;
+    }
+
+    .farewell-text {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 15px;
+        font-style: italic;
+    }
+
+    .encouragement-section {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .encouragement-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .encouragement-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .encouragement-item {
+        background: rgba(40, 167, 69, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .encouragement-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .encouragement-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .encouragement-text {
+        color: #2c3e50;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #32CD32, #28a745);
+        border: none;
+        color: white;
+        padding: 15px 35px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(50, 205, 50, 0.3);
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(50, 205, 50, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 13px 35px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .btn-secondary:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+    }
+
+    .re-enroll-note {
+        background: rgba(255, 193, 7, 0.1);
+        border: 2px solid rgba(255, 193, 7, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+        text-align: center;
+        position: relative;
+    }
+
+    .re-enroll-note::before {
+        content: '🔄';
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 1.5rem;
+        opacity: 0.7;
+    }
+
+    .re-enroll-text {
+        color: #2c3e50;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .re-enroll-link {
+        color: #ffc107;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .re-enroll-link:hover {
+        color: #e0a800;
+        text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .farewell-header {
+            padding: 30px 20px;
+        }
+        
+        .farewell-title {
+            font-size: 1.8rem;
+        }
+        
+        .unenrollment-content {
+            padding: 30px 20px;
+        }
+        
+        .course-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .encouragement-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+
+<div class="unenrollment-wrapper">
+    <div class="unenrollment-container">
+        <div class="farewell-header">
+            <span class="farewell-icon">👋</span>
+            <h1 class="farewell-title">Farewell for Now!</h1>
+            <p class="farewell-subtitle">You've successfully unenrolled from the course</p>
+        </div>
+        
+        <div class="unenrollment-content">
+            <div class="confirmation-message">
+                <p class="confirmation-text">
+                    <strong>{{ user.first_name|default:user.username }}</strong>, you have been successfully unenrolled from the course. 
+                    While we're sad to see you go, we respect your decision and wish you all the best in your learning journey.
+                </p>
+            </div>
+
+            <div class="course-summary">
+                <h2 class="course-title">{{ course.title }}</h2>
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">👨‍🏫</span>
+                        <span>{{ instructor.first_name|default:instructor.username }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📖</span>
+                        <span>{{ lessons_count }} lesson{{ lessons_count|pluralize }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📅</span>
+                        <span>Unenrolled {{ "now"|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+                <p>{{ course.description|truncatewords:25 }}</p>
+            </div>
+
+            <div class="farewell-message">
+                <p class="farewell-text">
+                    "Every ending is a new beginning. Thank you for being part of our learning community, 
+                    even if it was just for a while. Remember, learning is a lifelong journey, and there are 
+                    always new opportunities to grow and discover. We hope our paths cross again in the future!"
+                </p>
+            </div>
+
+            <div class="encouragement-section">
+                <h3 class="encouragement-title">
+                    <span>🚀</span>
+                    Keep Learning & Growing
+                </h3>
+                <div class="encouragement-list">
+                    <div class="encouragement-item">
+                        <span class="encouragement-icon">🌟</span>
+                        <p class="encouragement-text">Explore other courses that match your interests</p>
+                    </div>
+                    <div class="encouragement-item">
+                        <span class="encouragement-icon">📚</span>
+                        <p class="encouragement-text">Continue learning through books and articles</p>
+                    </div>
+                    <div class="encouragement-item">
+                        <span class="encouragement-icon">👥</span>
+                        <p class="encouragement-text">Join learning communities and forums</p>
+                    </div>
+                    <div class="encouragement-item">
+                        <span class="encouragement-icon">🎯</span>
+                        <p class="encouragement-text">Set new learning goals and challenges</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'users:student_dashboard' %}" class="btn-primary">
+                    🏠 Back to Dashboard
+                </a>
+                <a href="{% url 'home' %}" class="btn-secondary">
+                    🌐 Explore More Courses
+                </a>
+            </div>
+
+            <div class="re-enroll-note">
+                <p class="re-enroll-text">
+                    <strong>Changed your mind?</strong> You can always 
+                    <a href="{% url 'courses:course_detail' course.id %}" class="re-enroll-link">re-enroll in this course</a> 
+                    anytime. We'll be here when you're ready to continue your learning journey! 🎓
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add some gentle animation effects
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate encouragement items
+        const items = document.querySelectorAll('.encouragement-item');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                item.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 200);
+        });
+    });
+</script>
+{% endblock %}
