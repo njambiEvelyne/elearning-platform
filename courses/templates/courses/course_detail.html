@@ -25,9 +25,20 @@
         {% if user.is_authenticated %}
             {% if user.role == 'student' %}
                 {% if not is_enrolled %}
-                    <a href="{% url 'courses:enroll_course' course.id %}" class="btn btn-primary enroll-btn">
-                        🎓 Enroll Now
-                    </a>
+                    <div class="enrollment-cta">
+                        <div class="cta-content">
+                            <h3>🚀 Ready to Start Learning?</h3>
+                            <p>Join thousands of students who have already transformed their skills with this course!</p>
+                            <a href="{% url 'courses:enroll_course' course.id %}" class="btn btn-primary enroll-btn">
+                                🎓 Enroll Now - It's Free!
+                            </a>
+                            <div class="enrollment-benefits">
+                                <span>✅ Lifetime Access</span>
+                                <span>✅ Expert Instructor</span>
+                                <span>✅ {{ lessons.count }} Lessons</span>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i> You are enrolled in this course!
