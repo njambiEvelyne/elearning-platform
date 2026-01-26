@@ -15,10 +15,6 @@ from .views import (
     enroll_course,
     unenroll_course,
     courses_list,
-    course_content_management,
-    upload_course_material,
-    delete_course_material,
-    course_outline_view,
 )
 
 app_name = "courses"
@@ -34,12 +30,8 @@ urlpatterns = [
     path("instructor/", instructor_dashboard, name="instructor_dashboard"),
     path("instructor/add/", add_course, name="add_course"),
     path("<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
-    path("<int:course_id>/outline/", course_outline_view, name="course_outline"),
     path("<int:course_id>/enroll/", enroll_course, name="enroll_course"),
     path("<int:course_id>/unenroll/", unenroll_course, name="unenroll_course"),
-    path("<int:course_id>/manage/", course_content_management, name="content_management"),
-    path("<int:course_id>/upload/", upload_course_material, name="upload_material"),
-    path("<int:course_id>/materials/<int:material_id>/delete/", delete_course_material, name="delete_material"),
     
     # Lesson management for instructors
     path("<int:course_id>/lessons/", manage_lessons, name="manage_lessons"),
