@@ -244,13 +244,29 @@ def enroll_course(request, course_id):
         messages.error(request, "Only students can enroll in courses.")
         return redirect("courses:course_detail", course_id=course.id)
     
-    enrollment, created = Enrollment.objects.get_or_create(
-        student=request.user, course=course
-    )
-
-    if created:
-        messages.success(request, f"Successfully enrolled in '{course.title}'!")
-        return redirect("courses:course_detail", course_id=course.id)
-    else:
-        messages.info(request, f"You are already enrolled in '{course.title}'.")
-        return redirect("courses:course_detail", course_id=course.id)
+    # Check if already enrolled
+    existing_enrollment = Enrollment.objects.filter(student=request.user, course=course).first()
+    
+    if existing_enrollment:
+        # Already enrolled - show a warm message
+        context = {
+            'course': course,
+            'enrollment': existing_enrollment,
+            'already_enrolled': True,
+            'lessons_count': course.lessons.count(),
+            'instructor': course.instructor,
+        }
+        return render(request, "courses/enrollment_success.html", context)
+    
+    # Process enrollment
+    enrollment = Enrollment.objects.create(student=request.user, course=course)
+    
+    # Show success page with warm welcome
+    context = {
+        'course': course,
+        'enrollment': enrollment,
+        'already_enrolled': False,
+        'lessons_count': course.lessons.count(),
+        'instructor': course.instructor,
+    }
+    return render(request, "courses/enrollment_success.html", context)
