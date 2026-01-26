@@ -13,8 +13,10 @@ from .forms import CustomUserCreationForm, UserCreationForm
 
 def custom_logout(request):
     """Custom logout view that redirects to home page"""
-    logout(request)
-    messages.success(request, "You have been successfully logged out. Thank you for using our platform!")
+    if request.user.is_authenticated:
+        user_name = request.user.first_name or request.user.username
+        logout(request)
+        messages.success(request, f"Goodbye {user_name}! You have been successfully logged out. Thank you for using our platform!")
     return redirect('home')
 
 

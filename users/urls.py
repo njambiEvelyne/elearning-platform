@@ -8,6 +8,7 @@ from .views import (
     admin_dashboard,
     instructor_dashboard,
     student_dashboard,
+    custom_logout,
 )
 
 app_name = "users"
@@ -15,11 +16,7 @@ app_name = "users"
 
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
-    path(
-        "logout/",
-        LogoutView.as_view(next_page=reverse_lazy("home"), http_method_names=['get', 'post']),
-        name="logout",
-    ),
+    path("logout/", custom_logout, name="logout"),
     path("register/", RegisterUserView.as_view(), name="register"),
     path("dashboard/", dashboard_redirect, name="dashboard_redirect"),
     path("admin/dashboard/", admin_dashboard, name="admin_dashboard"),
