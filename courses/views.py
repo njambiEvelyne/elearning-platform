@@ -270,3 +270,41 @@ def enroll_course(request, course_id):
         'instructor': course.instructor,
     }
     return render(request, "courses/enrollment_success.html", context)
+
+
+@login_required
+def unenroll_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    
+    if request.user.role != 'student':
+        messages.error(request, "Only students can manage course enrollments.")
+        return redirect("courses:course_detail", course_id=course.id)
+    
+    # Check if enrolled
+    enrollment = Enrollment.objects.filter(student=request.user, course=course).first()
+    
+    if not enrollment:
+        messages.info(request, "You are not enrolled in this course.")
+        return redirect("courses:course_detail", course_id=course.id)
+    
+    if request.method == 'POST':
+        # Process unenrollment
+        enrollment.delete()
+        
+        # Show unenrollment confirmation page
+        context = {
+            'course': course,
+            'lessons_count': course.lessons.count(),
+            'instructor': course.instructor,
+            'unenrolled': True,
+        }
+        return render(request, "courses/unenrollment_success.html", context)
+    
+    # Show confirmation page
+    context = {
+        'course': course,
+        'enrollment': enrollment,
+        'lessons_count': course.lessons.count(),
+        'instructor': course.instructor,
+    }
+    return render(request, "courses/unenroll_confirm.html", context)

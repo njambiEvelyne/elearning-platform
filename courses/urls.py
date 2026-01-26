@@ -13,6 +13,7 @@ from .views import (
     delete_lesson,
     student_dashboard,
     enroll_course,
+    unenroll_course,
 )
 
 app_name = "courses"
@@ -28,6 +29,7 @@ urlpatterns = [
     path("instructor/add/", add_course, name="add_course"),
     path("<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
     path("<int:course_id>/enroll/", enroll_course, name="enroll_course"),
+    path("<int:course_id>/unenroll/", unenroll_course, name="unenroll_course"),
     
     # Lesson management for instructors
     path("<int:course_id>/lessons/", manage_lessons, name="manage_lessons"),
