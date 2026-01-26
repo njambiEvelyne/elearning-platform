@@ -30,11 +30,12 @@ class UserViewset(viewsets.ModelViewSet):
 class CustomLoginView(LoginView):
     template_name = "users/login.html"
 
+    def get_success_url(self):
+        return reverse_lazy("users:dashboard_redirect")
+
     def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)  # Log in user after registration
-        messages.success(self.request, "Account created successfully!")
-        return redirect("dashboard_redirect")  # Redirect to their specific dashboard
+        messages.success(self.request, f"Welcome back, {form.get_user().first_name or form.get_user().username}!")
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, "Invalid username or password.")
@@ -49,14 +50,22 @@ def custom_logout(request):
 class RegisterUserView(CreateView):
     template_name = "users/register.html"
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy("login")
+    success_url = reverse_lazy("users:login")
 
     def form_valid(self, form):
         user = form.save()
         messages.success(
-            self.request, "Account created successfully! You can now log in."
+            self.request, 
+            f"Welcome {user.first_name}! Your account has been created successfully. You can now log in."
         )
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(
+            self.request, 
+            "Please correct the errors below and try again."
+        )
+        return super().form_invalid(form)
 
 
 @login_required
