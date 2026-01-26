@@ -97,8 +97,10 @@ from courses.models import Course
 
 @login_required
 def student_dashboard(request):
-    enrolled_courses = Course.objects.filter(enrolled_students__student=request.user)
-    available_courses = Course.objects.exclude(enrolled_students__student=request.user)
+    # Get courses the student is enrolled in through the Enrollment model
+    from enrollments.models import Enrollment
+    enrolled_courses = Course.objects.filter(enrollment__student=request.user)
+    available_courses = Course.objects.exclude(enrollment__student=request.user)
 
     return render(
         request,
