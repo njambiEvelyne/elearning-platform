@@ -2,11 +2,15 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import viewsets
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.utils import timezone
+import uuid
 
 from courses.models import Course
-from .models import Enrollment
+from .models import Enrollment, GuestPreview
 from .serializers import EnrollmentSerializer
-from .forms import EnrollmentForm
+from .forms import EnrollmentForm, GuestPreviewForm
 
 
 class EnrollmentViewSet(viewsets.ModelViewSet):
@@ -42,8 +46,65 @@ def enroll_course(request, course_id):
     )
 
 
-from django.http import JsonResponse
-from django.core.paginator import Paginator
+def guest_preview_course(request, course_id):
+    """
+    Allow guests (unauthenticated users) to preview courses without permanent enrollment.
+    Creates a temporary GuestPreview record that expires after 24 hours.
+    """
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Check if user is already authenticated
+    if request.user.is_authenticated:
+        messages.info(request, "You are logged in. You can enroll in courses directly.")
+        return redirect("courses:course_detail", course_id=course.id)
+    
+    # Generate or retrieve guest session ID
+    guest_session_id = request.session.get('guest_session_id')
+    if not guest_session_id:
+        guest_session_id = str(uuid.uuid4())
+        request.session['guest_session_id'] = guest_session_id
+    
+    if request.method == "POST":
+        form = GuestPreviewForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            
+            # Check if this guest already has preview access (within 24 hours)
+            existing_preview = GuestPreview.objects.filter(
+                course=course,
+                guest_session_id=guest_session_id,
+                guest_email=email
+            ).first()
+            
+            if existing_preview and not existing_preview.is_expired():
+                # Reuse existing preview
+                preview = existing_preview
+                preview.last_accessed_at = timezone.now()
+                preview.save()
+                messages.info(request, f"Welcome back! You can preview {course.title} for the next 24 hours.")
+            else:
+                # Create new guest preview
+                preview = GuestPreview.objects.create(
+                    course=course,
+                    guest_email=email,
+                    guest_session_id=guest_session_id
+                )
+                messages.success(request, f"Guest preview access granted! You can access {course.title} for 24 hours.")
+            
+            # Store in session for verification
+            request.session['guest_course_id'] = course_id
+            request.session['guest_email'] = email
+            
+            return redirect("courses:course_detail", course_id=course.id)
+    else:
+        form = GuestPreviewForm()
+    
+    context = {
+        'form': form,
+        'course': course,
+        'is_guest': True
+    }
+    return render(request, "enrollments/guest_preview_form.html", context)
 
 
 def enrollments_list(request):

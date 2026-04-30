@@ -57,7 +57,7 @@
                             <div class="enrollment-benefits">
                                 <span>✅ Lifetime Access</span>
                                 <span>✅ Expert Instructor</span>
-                                <span>✅ {{ lessons.count }} Lessons</span>
+                                <span>✅ {{ lesson_count }} Lessons</span>
                             </div>
                         </div>
                     </div>
@@ -81,9 +81,40 @@
                     </div>
                 {% endif %}
             {% endif %}
+        {% elif is_guest_preview %}
+            <div class="guest-preview-alert alert alert-warning">
+                <div class="guest-preview-content">
+                    <h4>👁️ Guest Preview Mode (24-Hour Access)</h4>
+                    <p class="mb-2">You're viewing this course as a guest. You can see the first lesson only.</p>
+                    <p class="mb-3"><strong>Guest Email:</strong> {{ guest_email }}</p>
+                    <div class="guest-actions">
+                        <a href="{% url 'users:register' %}" class="btn btn-success">
+                            📝 Create Account & Enroll Permanently
+                        </a>
+                        <a href="{% url 'users:login' %}" class="btn btn-info">
+                            🔓 Log In to Enroll
+                        </a>
+                    </div>
+                </div>
+            </div>
         {% else %}
-            <div class="alert alert-info">
-                <a href="{% url 'users:login' %}">Login</a> to enroll in this course.
+            <!-- Non-authenticated, non-guest users -->
+            <div class="not-enrolled-alert">
+                <div class="alert alert-info">
+                    <h4>👋 Interested in this course?</h4>
+                    <p class="mb-3">You can:</p>
+                    <div class="enrollment-options">
+                        <a href="{% url 'enrollments:guest_preview' course.id %}" class="btn btn-outline-info">
+                            👁️ Start 24-Hour Free Preview
+                        </a>
+                        <a href="{% url 'users:register' %}" class="btn btn-success">
+                            📝 Create Account & Enroll
+                        </a>
+                        <a href="{% url 'users:login' %}" class="btn btn-primary">
+                            🔓 Log In to Enroll
+                        </a>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>

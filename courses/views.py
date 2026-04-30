@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .permissions import IsInstructorOrReadOnly
 from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
-from enrollments.models import Enrollment
+from enrollments.models import Enrollment, GuestPreview
 from rest_framework.permissions import IsAuthenticated
 import logging
 from django.shortcuts import get_object_or_404, render, redirect
@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CourseForm, LessonForm
 from django.http import Http404
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -55,18 +56,47 @@ class CourseDetailView(View):
     def get(self, request, course_id):
         course = get_object_or_404(Course, id=course_id)
         is_enrolled = False
+        is_guest_preview = False
+        guest_email = None
         lessons = []
+        can_manage = False
         
         if request.user.is_authenticated:
             is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
+            can_manage = request.user == course.instructor
             if is_enrolled or request.user.role == 'instructor':
                 lessons = course.lessons.filter(status='published').order_by('order', 'created_at')
+        else:
+            # Check if guest has valid preview access
+            guest_session_id = request.session.get('guest_session_id')
+            guest_email = request.session.get('guest_email')
+            guest_course_id = request.session.get('guest_course_id')
+            
+            if guest_session_id and guest_email and guest_course_id == course_id:
+                guest_preview = GuestPreview.objects.filter(
+                    course=course,
+                    guest_session_id=guest_session_id,
+                    guest_email=guest_email
+                ).first()
+                
+                if guest_preview and not guest_preview.is_expired():
+                    is_guest_preview = True
+                    guest_preview.last_accessed_at = timezone.now()
+                    guest_preview.save()
+                    # Show first lesson only for guest preview
+                    first_lesson = course.lessons.filter(status='published').order_by('order', 'created_at').first()
+                    if first_lesson:
+                        lessons = [first_lesson]
         
         context = {
             'course': course,
             'is_enrolled': is_enrolled,
+            'is_guest_preview': is_guest_preview,
+            'guest_email': guest_email,
             'lessons': lessons,
-            'can_manage': request.user.is_authenticated and request.user == course.instructor
+            'can_manage': can_manage,
+            'lesson_count': course.lessons.filter(status='published').count(),
+            'can_preview': not is_enrolled and not request.user.is_authenticated
         }
         return render(request, "courses/course_detail.html", context)
 
@@ -76,33 +106,71 @@ class LessonDetailView(View):
         course = get_object_or_404(Course, id=course_id)
         lesson = get_object_or_404(Lesson, id=lesson_id, course=course)
         
-        # Check if user can access this lesson
-        if not request.user.is_authenticated:
-            return redirect('users:login')
+        is_instructor = False
+        is_enrolled = False
+        is_guest_preview = False
+        guest_email = None
         
-        # Check enrollment or instructor access
-        is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
-        is_instructor = request.user == course.instructor
-        
-        if not (is_enrolled or is_instructor):
-            messages.error(request, "You must be enrolled in this course to access lessons.")
-            return redirect('courses:course_detail', course_id=course.id)
-        
-        # Only show published lessons to students
-        if request.user.role == 'student' and lesson.status != 'published':
-            raise Http404("Lesson not found")
+        if request.user.is_authenticated:
+            # Check if user can access this lesson
+            is_enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
+            is_instructor = request.user == course.instructor
+            
+            if not (is_enrolled or is_instructor):
+                messages.error(request, "You must be enrolled in this course to access lessons.")
+                return redirect('courses:course_detail', course_id=course.id)
+            
+            # Only show published lessons to students
+            if request.user.role == 'student' and lesson.status != 'published':
+                raise Http404("Lesson not found")
+        else:
+            # Check if guest has valid preview access
+            guest_session_id = request.session.get('guest_session_id')
+            guest_email_session = request.session.get('guest_email')
+            guest_course_id = request.session.get('guest_course_id')
+            
+            if guest_session_id and guest_email_session and guest_course_id == course_id:
+                guest_preview = GuestPreview.objects.filter(
+                    course=course,
+                    guest_session_id=guest_session_id,
+                    guest_email=guest_email_session
+                ).first()
+                
+                if guest_preview and not guest_preview.is_expired():
+                    is_guest_preview = True
+                    guest_email = guest_email_session
+                    guest_preview.last_accessed_at = timezone.now()
+                    guest_preview.save()
+                    
+                    # Guests can only view the first published lesson
+                    first_lesson = course.lessons.filter(status='published').order_by('order', 'created_at').first()
+                    if not first_lesson or first_lesson.id != lesson.id:
+                        messages.warning(request, "As a guest, you can only preview the first lesson. Please register to access all lessons.")
+                        return redirect('courses:course_detail', course_id=course.id)
+                else:
+                    messages.error(request, "Your guest preview has expired or is invalid. Please start a new preview or register.")
+                    return redirect('courses:course_detail', course_id=course.id)
+            else:
+                messages.error(request, "You must be enrolled in this course to access lessons. You can start a guest preview instead.")
+                return redirect('courses:course_detail', course_id=course.id)
         
         # Get all lessons for navigation
         if is_instructor:
             all_lessons = course.lessons.all().order_by('order', 'created_at')
         else:
             all_lessons = course.lessons.filter(status='published').order_by('order', 'created_at')
+            # Guests can only see the first lesson
+            if is_guest_preview:
+                all_lessons = all_lessons[:1]
         
         context = {
             'course': course,
             'lesson': lesson,
             'all_lessons': all_lessons,
-            'is_instructor': is_instructor
+            'is_instructor': is_instructor,
+            'is_enrolled': is_enrolled,
+            'is_guest_preview': is_guest_preview,
+            'guest_email': guest_email,
         }
         return render(request, "courses/lesson_detail.html", context)
 

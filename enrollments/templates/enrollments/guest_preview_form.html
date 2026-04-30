@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Preview Course - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Course Preview Header -->
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">📚 Guest Preview Access</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text text-muted">{{ course.description }}</p>
+                    <div class="alert alert-info mt-3">
+                        <strong>✨ Preview Access Benefits:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>View the first lesson for free</li>
+                            <li>Access valid for 24 hours</li>
+                            <li>No account required (yet!)</li>
+                            <li>Get a feel for the course content</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Email Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Start Your Preview</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                Email Address
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-2">
+                                We'll send you course updates and special offers (you can unsubscribe anytime)
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn btn-info btn-lg w-100">
+                            <i class="fas fa-eye"></i> Start 24-Hour Preview
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted mb-2">
+                            Already have an account?
+                            <a href="{% url 'users:login' %}">
+                                <strong>Log in to enroll permanently</strong>
+                            </a>
+                        </p>
+                        <p class="text-muted mb-0">
+                            Don't have an account?
+                            <a href="{% url 'users:register' %}">
+                                <strong>Create one now</strong>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Info -->
+            <div class="mt-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">📖 Course Content</h5>
+                                <p class="card-text display-6">
+                                    {{ course.lessons.count }} Lessons
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">👨‍🏫 Instructor</h5>
+                                <p class="card-text">
+                                    <strong>{{ course.instructor.get_full_name|default:course.instructor.username }}</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Why Preview -->
+            <div class="card mt-4 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Why Preview a Course?</h5>
+                    <p class="card-text">
+                        Not sure if this course is right for you? Our preview access lets you explore the first lesson 
+                        completely free for 24 hours. Get a real feel for the course content and teaching style before 
+                        committing to full enrollment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    .btn-lg {
+        padding: 0.75rem;
+        font-size: 1.1rem;
+    }
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    }
+</style>
+{% endblock %}
