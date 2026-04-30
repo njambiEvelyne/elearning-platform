@@ -1,488 +1,168 @@
 {% extends 'base.html' %}
-
-{% block title %}Unenroll from {{ course.title }}{% endblock %}
+{% block title %}Unenroll from {{ course.title }} – EduLearn{% endblock %}
 
 {% block content %}
 <style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    body { background: var(--bg-page); }
 
-    .unenroll-wrapper {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px 0;
+    .confirm-wrapper {
+        min-height: 80vh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 30px 0;
     }
-
-    .unenroll-container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 25px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    .confirm-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
         overflow: hidden;
-        max-width: 700px;
-        width: 100%;
-        margin: 20px;
-        position: relative;
+        max-width: 660px; width: 100%;
     }
 
-    .unenroll-container::before {
+    .confirm-header {
+        background: linear-gradient(135deg, #b71c1c, #e53935);
+        color: #fff; padding: 40px; text-align: center; position: relative; overflow: hidden;
+    }
+    .confirm-header::before {
         content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: linear-gradient(90deg, #ffc107, #fd7e14, #dc3545);
-        animation: pulse 2s ease-in-out infinite;
+        position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="w" width="30" height="30" patternUnits="userSpaceOnUse"><polygon points="15,4 26,26 4,26" fill="rgba(255,255,255,0.06)"/></pattern></defs><rect width="200" height="200" fill="url(%23w)"/></svg>');
     }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+    .warn-icon {
+        font-size: 4rem; display: block; margin-bottom: 16px;
+        animation: shake 1.5s ease-in-out infinite; position: relative; z-index: 1;
     }
+    @keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-6deg)} 75%{transform:rotate(6deg)} }
+    .confirm-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 1; }
+    .confirm-header p  { opacity: 0.92; margin: 0; position: relative; z-index: 1; }
 
-    .warning-header {
-        background: linear-gradient(135deg, #ffc107, #fd7e14);
-        color: white;
-        padding: 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
+    .confirm-body { padding: 36px; }
 
-    .warning-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="warning" width="30" height="30" patternUnits="userSpaceOnUse"><polygon points="15,5 25,25 5,25" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23warning)"/></svg>');
-        opacity: 0.2;
-    }
-
-    .warning-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        display: block;
-        animation: shake 2s ease-in-out infinite;
-        position: relative;
-        z-index: 1;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    .warning-title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 15px;
-        position: relative;
-        z-index: 1;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .warning-subtitle {
-        font-size: 1.1rem;
-        opacity: 0.95;
-        margin-bottom: 0;
-        position: relative;
-        z-index: 1;
-        font-weight: 300;
-    }
-
-    .unenroll-content {
-        padding: 40px;
-    }
-
-    .course-info-card {
-        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(253, 126, 20, 0.1));
-        border: 2px solid rgba(255, 193, 7, 0.3);
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .course-info-card::before {
-        content: '📚';
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 2rem;
-        opacity: 0.3;
-    }
-
-    .course-title {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-
-    .course-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #6c757d;
-        font-size: 0.95rem;
-    }
-
-    .meta-icon {
-        color: #ffc107;
-    }
-
-    .warning-message {
-        background: rgba(220, 53, 69, 0.1);
-        border: 2px solid rgba(220, 53, 69, 0.2);
-        border-radius: 12px;
-        padding: 25px;
-        margin-bottom: 30px;
+    /* Course summary */
+    .course-summary {
+        background: #fff8f8; border: 2px solid #ffcdd2;
+        border-radius: var(--radius-md); padding: 22px; margin-bottom: 24px;
         position: relative;
     }
+    .course-summary::after { content: '📚'; position: absolute; top: 14px; right: 18px; font-size: 1.6rem; opacity: 0.3; }
+    .course-summary h3 { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
+    .meta-row { display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.88rem; color: var(--text-muted); }
+    .meta-row span { display: flex; align-items: center; gap: 5px; }
 
-    .warning-message::before {
-        content: '⚠️';
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 1.5rem;
+    /* Warning list */
+    .warning-box {
+        background: #fff3e0; border-left: 4px solid #fb8c00;
+        border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 20px;
+    }
+    .warning-box h4 { font-size: 0.95rem; font-weight: 700; color: #e65100; margin-bottom: 10px; }
+    .warning-box ul { margin: 0; padding-left: 18px; color: #5d4037; font-size: 0.9rem; }
+    .warning-box ul li { margin-bottom: 5px; }
+
+    /* What happens */
+    .happens-box {
+        background: #f5f9ff; border-radius: var(--radius-sm);
+        padding: 18px 20px; margin-bottom: 28px;
+    }
+    .happens-box h4 { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px; }
+    .happens-box ul { margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 0.9rem; }
+    .happens-box ul li { margin-bottom: 5px; }
+
+    /* Buttons */
+    .action-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .btn-confirm {
+        background: linear-gradient(135deg, #e53935, #b71c1c);
+        color: #fff; border: none; padding: 13px 32px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 1rem;
+        cursor: pointer; transition: all 0.3s;
+        box-shadow: 0 6px 18px rgba(183,28,28,0.35);
+    }
+    .btn-confirm:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(183,28,28,0.45); color: #fff; }
+    .btn-stay {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 13px 32px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 1rem;
+        text-decoration: none; transition: all 0.3s;
+        box-shadow: 0 6px 18px rgba(21,101,192,0.35);
+    }
+    .btn-stay:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(21,101,192,0.45); color: #fff; }
+    .btn-dash {
+        background: transparent; border: 2px solid #90a4ae;
+        color: #546e7a; padding: 11px 28px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.95rem;
+        text-decoration: none; transition: all 0.3s;
+    }
+    .btn-dash:hover { background: #546e7a; color: #fff; transform: translateY(-2px); }
+
+    /* Reassurance */
+    .reassurance {
+        background: var(--primary-pale); border-left: 4px solid var(--primary-light);
+        border-radius: var(--radius-sm); padding: 16px 20px;
+        font-size: 0.92rem; color: var(--primary-dark); font-style: italic; line-height: 1.6;
     }
 
-    .warning-title-small {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #dc3545;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .warning-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .warning-list li {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-bottom: 10px;
-        color: #2c3e50;
-        line-height: 1.5;
-    }
-
-    .warning-list li::before {
-        content: '•';
-        color: #dc3545;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    .consequences-section {
-        background: rgba(108, 117, 125, 0.1);
-        border-radius: 12px;
-        padding: 25px;
-        margin-bottom: 30px;
-    }
-
-    .consequences-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .consequences-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .consequences-list li {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-bottom: 8px;
-        color: #6c757d;
-        font-size: 0.95rem;
-        line-height: 1.4;
-    }
-
-    .consequences-list li::before {
-        content: '→';
-        color: #6c757d;
-        font-weight: bold;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 30px;
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        border: none;
-        color: white;
-        padding: 15px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-size: 1.1rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
-        cursor: pointer;
-    }
-
-    .btn-danger::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-    }
-
-    .btn-danger:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(220, 53, 69, 0.4);
-        color: white;
-        text-decoration: none;
-    }
-
-    .btn-danger:hover::before {
-        left: 100%;
-    }
-
-    .btn-safe {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        border: none;
-        color: white;
-        padding: 15px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-size: 1.1rem;
-        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
-    }
-
-    .btn-safe:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(40, 167, 69, 0.4);
-        color: white;
-        text-decoration: none;
-    }
-
-    .btn-secondary {
-        background: transparent;
-        border: 2px solid #6c757d;
-        color: #6c757d;
-        padding: 13px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-size: 1.1rem;
-    }
-
-    .btn-secondary:hover {
-        background: #6c757d;
-        color: white;
-        text-decoration: none;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
-    }
-
-    .reassurance-note {
-        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
-        border-left: 4px solid #28a745;
-        border-radius: 8px;
-        padding: 20px;
-        margin-top: 30px;
-        position: relative;
-    }
-
-    .reassurance-note::before {
-        content: '💚';
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 1.5rem;
-        opacity: 0.7;
-    }
-
-    .reassurance-text {
-        color: #2c3e50;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin: 0;
-        font-style: italic;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .warning-header {
-            padding: 30px 20px;
-        }
-        
-        .warning-title {
-            font-size: 1.8rem;
-        }
-        
-        .unenroll-content {
-            padding: 30px 20px;
-        }
-        
-        .course-meta {
-            grid-template-columns: 1fr;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .btn-danger,
-        .btn-safe,
-        .btn-secondary {
-            width: 100%;
-            max-width: 300px;
-        }
+    @media (max-width: 600px) {
+        .confirm-body { padding: 24px 18px; }
+        .action-row { flex-direction: column; align-items: center; }
+        .btn-confirm, .btn-stay, .btn-dash { width: 100%; max-width: 300px; text-align: center; }
     }
 </style>
 
-<div class="unenroll-wrapper">
-    <div class="unenroll-container">
-        <div class="warning-header">
-            <span class="warning-icon">⚠️</span>
-            <h1 class="warning-title">Wait a Moment!</h1>
-            <p class="warning-subtitle">Are you sure you want to unenroll from this course?</p>
+<div class="confirm-wrapper">
+    <div class="confirm-card">
+        <div class="confirm-header">
+            <span class="warn-icon">⚠️</span>
+            <h1>Hold On!</h1>
+            <p>Are you sure you want to unenroll from this course?</p>
         </div>
-        
-        <div class="unenroll-content">
-            <div class="course-info-card">
-                <h2 class="course-title">{{ course.title }}</h2>
-                <div class="course-meta">
-                    <div class="meta-item">
-                        <span class="meta-icon">👨‍🏫</span>
-                        <span>{{ instructor.first_name|default:instructor.username }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-icon">📖</span>
-                        <span>{{ lessons_count }} lesson{{ lessons_count|pluralize }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-icon">📅</span>
-                        <span>Enrolled {{ enrollment.enrolled_at|date:"M d, Y" }}</span>
-                    </div>
+
+        <div class="confirm-body">
+            <div class="course-summary">
+                <h3>{{ course.title }}</h3>
+                <div class="meta-row">
+                    <span><i class="fas fa-chalkboard-teacher"></i> {{ instructor.first_name|default:instructor.username }}</span>
+                    <span><i class="fas fa-list"></i> {{ lessons_count }} lesson{{ lessons_count|pluralize }}</span>
+                    <span><i class="fas fa-calendar"></i> Enrolled {{ enrollment.enrolled_at|date:"M d, Y" }}</span>
                 </div>
-                <p>{{ course.description|truncatewords:25 }}</p>
             </div>
 
-            <div class="warning-message">
-                <h3 class="warning-title-small">
-                    <span>🚨</span>
-                    Important: What You'll Lose
-                </h3>
-                <ul class="warning-list">
+            <div class="warning-box">
+                <h4><i class="fas fa-exclamation-triangle me-1"></i> What You'll Lose</h4>
+                <ul>
                     <li>Access to all course materials and lessons</li>
                     <li>Your learning progress and completed activities</li>
-                    <li>Ability to participate in course discussions</li>
-                    <li>Certificate eligibility upon course completion</li>
-                    <li>Future updates and additional content</li>
+                    <li>Certificate eligibility upon completion</li>
+                    <li>Future course updates and new content</li>
                 </ul>
             </div>
 
-            <div class="consequences-section">
-                <h3 class="consequences-title">
-                    <span>📋</span>
-                    What Happens Next
-                </h3>
-                <ul class="consequences-list">
+            <div class="happens-box">
+                <h4><i class="fas fa-info-circle me-1"></i> What Happens Next</h4>
+                <ul>
                     <li>You'll be immediately removed from the course</li>
                     <li>All progress data will be permanently deleted</li>
-                    <li>You can re-enroll later, but will start from the beginning</li>
-                    <li>Your instructor will be notified of your withdrawal</li>
+                    <li>You can re-enroll later, but will start from scratch</li>
                 </ul>
             </div>
 
-            <form method="post" style="display: inline;">
+            <form method="post">
                 {% csrf_token %}
-                <div class="action-buttons">
-                    <button type="submit" class="btn-danger">
-                        🗑️ Yes, Unenroll Me
+                <div class="action-row">
+                    <button type="submit" class="btn-confirm">
+                        <i class="fas fa-trash me-2"></i> Yes, Unenroll Me
                     </button>
-                    <a href="{% url 'courses:course_detail' course.id %}" class="btn-safe">
-                        📚 Keep Learning
+                    <a href="{% url 'courses:course_detail' course.id %}" class="btn-stay">
+                        <i class="fas fa-book-open me-2"></i> Keep Learning
                     </a>
-                    <a href="{% url 'users:student_dashboard' %}" class="btn-secondary">
-                        🏠 Back to Dashboard
+                    <a href="{% url 'users:student_dashboard' %}" class="btn-dash">
+                        <i class="fas fa-th-large me-1"></i> Dashboard
                     </a>
                 </div>
             </form>
 
-            <div class="reassurance-note">
-                <p class="reassurance-text">
-                    <strong>Remember:</strong> Learning is a journey, and every step counts. If you're facing challenges, 
-                    consider reaching out to your instructor or fellow students for support. Sometimes a little help 
-                    is all you need to get back on track! 🌟
-                </p>
+            <div class="reassurance">
+                <strong>Remember:</strong> If you're facing challenges, consider reaching out to your instructor
+                for support. Sometimes a little guidance is all you need to get back on track! 💙
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    // Add confirmation dialog for extra safety
-    document.querySelector('.btn-danger').addEventListener('click', function(e) {
-        const courseName = "{{ course.title|escapejs }}";
-        const confirmed = confirm(
-            `Are you absolutely sure you want to unenroll from "${courseName}"?\n\n` +
-            `This action cannot be undone and you will lose all your progress.\n\n` +
-            `Click OK to proceed with unenrollment, or Cancel to stay enrolled.`
-        );
-        
-        if (!confirmed) {
-            e.preventDefault();
-        }
-    });
-
-    // Add some visual feedback
-    document.querySelector('.btn-danger').addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-3px) scale(1.02)';
-    });
-
-    document.querySelector('.btn-danger').addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(-3px) scale(1)';
-    });
-</script>
 {% endblock %}

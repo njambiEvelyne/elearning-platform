@@ -51,11 +51,6 @@ class CustomLoginView(LoginView):
         return super().form_invalid(form)
 
 
-def custom_logout(request):
-    logout(request)
-    return redirect("login")
-
-
 class RegisterUserView(CreateView):
     template_name = "users/register.html"
     form_class = CustomUserCreationForm
