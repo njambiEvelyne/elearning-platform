@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Course – Admin – EduLearn{% endblock %}
+
+{% block content %}
+<style>
+    body { background: var(--bg-page); }
+    .form-wrapper { display: flex; align-items: flex-start; justify-content: center; padding: 40px 0 60px; }
+    .form-card { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; max-width: 720px; width: 100%; }
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+        color: #fff; padding: 36px 48px; position: relative; overflow: hidden;
+    }
+    .form-header::before {
+        content: ''; position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="200" height="200" fill="url(%23p)"/></svg>');
+    }
+    .breadcrumb-nav { position: relative; z-index: 1; margin-bottom: 14px; font-size: 0.88rem; }
+    .breadcrumb-nav a { color: rgba(255,255,255,0.75); text-decoration: none; }
+    .breadcrumb-nav a:hover { color: #fff; }
+    .breadcrumb-nav span { color: rgba(255,255,255,0.45); margin: 0 7px; }
+    .form-header h1 { font-size: 1.9rem; font-weight: 800; margin-bottom: 4px; position: relative; z-index: 1; }
+    .form-header p  { opacity: 0.88; margin: 0; position: relative; z-index: 1; }
+
+    .form-body { padding: 44px 48px; }
+    .section-label {
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--primary-light);
+        margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #dce8f8; }
+
+    .form-label { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; margin-bottom: 8px; display: block; }
+    .form-label .req { color: #ef5350; margin-left: 2px; }
+    .form-control {
+        border: 2px solid #dce8f8; border-radius: var(--radius-sm);
+        padding: 13px 18px; font-size: 1rem;
+        background: #f5f9ff; transition: all 0.25s; width: 100%;
+    }
+    .form-control:focus { border-color: var(--primary-light); background: #fff; box-shadow: 0 0 0 4px rgba(30,136,229,0.1); outline: none; }
+    .form-control::placeholder { color: #b0bec5; }
+    textarea.form-control { min-height: 140px; resize: vertical; }
+
+    .field-hint  { font-size: 0.82rem; color: var(--text-muted); margin-top: 5px; }
+    .field-error { font-size: 0.85rem; color: #ef5350; margin-top: 5px; }
+
+    .form-actions { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; padding-top: 28px; border-top: 2px solid #eef2f8; }
+    .btn-save {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 14px 38px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 1.05rem;
+        cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 18px rgba(21,101,192,0.35);
+    }
+    .btn-save:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(21,101,192,0.45); }
+    .btn-cancel {
+        background: transparent; border: 2px solid #90a4ae; color: #546e7a;
+        padding: 12px 30px; border-radius: var(--radius-pill); font-weight: 600;
+        font-size: 1.05rem; text-decoration: none; transition: all 0.3s;
+    }
+    .btn-cancel:hover { background: #546e7a; color: #fff; transform: translateY(-2px); }
+
+    @media (max-width: 600px) {
+        .form-header { padding: 28px 22px; }
+        .form-body   { padding: 28px 20px; }
+        .form-actions { flex-direction: column; }
+    }
+</style>
+
+<div class="form-wrapper">
+    <div class="form-card">
+        <div class="form-header">
+            <div class="breadcrumb-nav">
+                <a href="{% url 'courses:admin_course_list' %}">Course Management</a>
+                <span>/</span> {{ action }} Course
+            </div>
+            <h1><i class="fas fa-{% if action == 'Create' %}plus-circle{% else %}edit{% endif %} me-2"></i>{{ action }} Course</h1>
+            <p>{% if action == 'Create' %}Create a new course and assign it to an instructor.{% else %}Update course details and assignment.{% endif %}</p>
+        </div>
+
+        <div class="form-body">
+            <form method="post" id="courseForm">
+                {% csrf_token %}
+
+                <div class="section-label"><i class="fas fa-info-circle"></i> Course Details</div>
+                <div class="mb-4">
+                    <label class="form-label">Title <span class="req">*</span></label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="field-error">{{ form.title.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Description <span class="req">*</span></label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="field-error">{{ form.description.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="section-label"><i class="fas fa-user-tie"></i> Assignment &amp; Status</div>
+                <div class="row g-4 mb-2">
+                    <div class="col-sm-7">
+                        <label class="form-label">Assign Instructor</label>
+                        {{ form.instructor }}
+                        <div class="field-hint">The instructor will be able to add lessons and materials to this course.</div>
+                        {% if form.instructor.errors %}<div class="field-error">{{ form.instructor.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label">Status <span class="req">*</span></label>
+                        {{ form.status }}
+                        <div class="field-hint">Only <strong>Approved</strong> courses are visible to students.</div>
+                        {% if form.status.errors %}<div class="field-error">{{ form.status.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i> {{ action }} Course
+                    </button>
+                    <a href="{% url 'courses:admin_course_list' %}" class="btn-cancel">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

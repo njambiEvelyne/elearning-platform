@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Materials – {{ lesson.title }} – EduLearn{% endblock %}
+
+{% block content %}
+<style>
+    body { background: var(--bg-page); }
+    .page-wrap { padding: 10px 0 50px; }
+
+    .page-header {
+        background: var(--bg-card); border-radius: var(--radius-lg);
+        padding: 28px 36px; margin-bottom: 28px; box-shadow: var(--shadow-md);
+        display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    }
+    .header-icon {
+        width: 56px; height: 56px; border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.6rem; flex-shrink: 0;
+    }
+    .header-info { flex: 1; min-width: 200px; }
+    .breadcrumb-nav { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+    .breadcrumb-nav a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb-nav a:hover { text-decoration: underline; }
+    .breadcrumb-nav span { margin: 0 6px; }
+    .header-info h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 3px; }
+    .header-info p  { color: var(--text-muted); margin: 0; font-size: 0.9rem; }
+
+    .btn-upload {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 11px 24px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 0.92rem;
+        text-decoration: none; transition: all 0.3s;
+        box-shadow: 0 4px 14px rgba(21,101,192,0.35);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .btn-upload:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(21,101,192,0.45); color: #fff; }
+
+    /* Materials grid */
+    .materials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px; margin-bottom: 40px;
+    }
+    .material-card {
+        background: var(--bg-card); border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm); padding: 22px;
+        border-left: 5px solid var(--primary-light);
+        transition: all 0.3s; display: flex; flex-direction: column; gap: 14px;
+    }
+    .material-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .mat-top { display: flex; align-items: flex-start; gap: 14px; }
+    .mat-icon {
+        width: 48px; height: 48px; border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; flex-shrink: 0;
+    }
+    .mat-icon.pdf  { background: #fce4ec; color: #e53935; }
+    .mat-icon.word { background: #e3f2fd; color: #1565c0; }
+    .mat-icon.file { background: #f3e5f5; color: #7b1fa2; }
+
+    .mat-info h3 { font-size: 1rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; line-height: 1.3; }
+    .mat-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 2px; }
+
+    .mat-actions { display: flex; gap: 8px; }
+    .btn-download {
+        flex: 1; background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 9px 14px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.85rem;
+        text-align: center; text-decoration: none; transition: all 0.25s;
+    }
+    .btn-download:hover { transform: translateY(-2px); color: #fff; }
+    .btn-del {
+        background: transparent; border: 2px solid #ef5350; color: #ef5350;
+        padding: 7px 14px; border-radius: var(--radius-pill); font-weight: 600;
+        font-size: 0.85rem; text-decoration: none; transition: all 0.25s;
+    }
+    .btn-del:hover { background: #ef5350; color: #fff; transform: translateY(-2px); }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center; padding: 60px 20px;
+        background: rgba(255,255,255,0.1); border-radius: var(--radius-lg);
+        border: 2px dashed rgba(255,255,255,0.3);
+    }
+    .empty-state .icon { font-size: 3.5rem; margin-bottom: 14px; opacity: 0.7; }
+    .empty-state h3 { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+    .empty-state p  { color: rgba(255,255,255,0.8); margin-bottom: 24px; }
+
+    @media (max-width: 600px) { .materials-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="page-wrap">
+
+    <div class="page-header">
+        <div class="header-icon">📎</div>
+        <div class="header-info">
+            <div class="breadcrumb-nav">
+                <a href="{% url 'courses:instructor_dashboard' %}">Dashboard</a>
+                <span>/</span>
+                <a href="{% url 'courses:manage_lessons' course.id %}">{{ course.title }}</a>
+                <span>/</span> {{ lesson.title }} — Materials
+            </div>
+            <h1>Course Materials</h1>
+            <p>PDF, DOC, and DOCX files for this lesson</p>
+        </div>
+        <a href="{% url 'courses:add_material' course.id lesson.id %}" class="btn-upload">
+            <i class="fas fa-upload"></i> Upload File
+        </a>
+    </div>
+
+    {% if materials %}
+        <div class="materials-grid">
+            {% for mat in materials %}
+            <div class="material-card">
+                <div class="mat-top">
+                    <div class="mat-icon {% if mat.extension == '.pdf' %}pdf{% elif mat.extension in '.doc .docx' %}word{% else %}file{% endif %}">
+                        <i class="fas {{ mat.icon }}"></i>
+                    </div>
+                    <div class="mat-info">
+                        <h3>{{ mat.title }}</h3>
+                        <div class="mat-meta">
+                            <span><i class="fas fa-file me-1"></i>{{ mat.filename }}</span>
+                            <span><i class="fas fa-calendar me-1"></i>{{ mat.uploaded_at|date:"M d, Y" }}</span>
+                            <span><i class="fas fa-user me-1"></i>{{ mat.uploaded_by.first_name|default:mat.uploaded_by.username }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mat-actions">
+                    <a href="{% url 'courses:download_material' mat.id %}" class="btn-download">
+                        <i class="fas fa-download me-1"></i> Download
+                    </a>
+                    <a href="{% url 'courses:delete_material' course.id lesson.id mat.id %}" class="btn-del">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="icon">📄</div>
+            <h3>No materials yet</h3>
+            <p>Upload PDF, DOC, or DOCX files for students to download.</p>
+            <a href="{% url 'courses:add_material' course.id lesson.id %}" class="btn-upload" style="display:inline-flex;">
+                <i class="fas fa-upload"></i> Upload First File
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
