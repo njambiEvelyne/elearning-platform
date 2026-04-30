@@ -181,8 +181,17 @@ def instructor_dashboard(request):
         messages.error(request, "Access denied. Instructor role required.")
         return redirect("home")
 
-    courses = Course.objects.filter(instructor=request.user)
-    return render(request, "courses/instructor_dashboard.html", {"courses": courses})
+    courses = Course.objects.filter(instructor=request.user).prefetch_related('lessons')
+    total_lessons = sum(c.lessons.count() for c in courses)
+    total_students = sum(
+        Enrollment.objects.filter(course=c).count() for c in courses
+    )
+    context = {
+        'courses': courses,
+        'total_lessons': total_lessons,
+        'total_students': total_students,
+    }
+    return render(request, "courses/instructor_dashboard.html", context)
 
 
 @login_required
@@ -203,6 +212,35 @@ def add_course(request):
         form = CourseForm()
 
     return render(request, "courses/add_course.html", {"form": form})
+
+
+@login_required
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
+    if request.method == "POST":
+        form = CourseForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Course '{course.title}' updated successfully!")
+            return redirect("courses:instructor_dashboard")
+    else:
+        form = CourseForm(instance=course)
+
+    return render(request, "courses/add_course.html", {"form": form, "course": course, "editing": True})
+
+
+@login_required
+def delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
+    if request.method == "POST":
+        title = course.title
+        course.delete()
+        messages.success(request, f"Course '{title}' deleted successfully.")
+        return redirect("courses:instructor_dashboard")
+
+    return render(request, "courses/delete_course.html", {"course": course})
 
 
 @login_required

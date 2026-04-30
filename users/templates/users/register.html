@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Create Account – EduLearn{% endblock %}
+{% block title %}Create Account - EduLearn{% endblock %}
 
 {% block content %}
 <style>
@@ -7,116 +7,151 @@
 
     .reg-wrapper {
         display: flex; align-items: flex-start; justify-content: center;
-        padding: 30px 0 50px;
+        padding: 40px 0 60px;
     }
+
     .reg-card {
         background: var(--bg-card);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
         overflow: hidden;
-        max-width: 860px; width: 100%;
+        width: 100%;
+        max-width: 1000px;
     }
+
     .reg-header {
         background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
-        color: #fff; padding: 40px; text-align: center;
+        color: #fff; padding: 50px 60px; text-align: center;
+        position: relative; overflow: hidden;
     }
-    .reg-header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
-    .reg-header p  { opacity: 0.9; margin: 0; font-size: 1.05rem; }
+    .reg-header::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="200" height="200" fill="url(%23p)"/></svg>');
+    }
+    .reg-header h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 10px; position: relative; z-index: 1; }
+    .reg-header p  { opacity: 0.9; margin: 0; font-size: 1.1rem; position: relative; z-index: 1; }
 
-    .reg-body { padding: 40px; }
+    .steps-bar {
+        display: flex; justify-content: center; align-items: center;
+        background: var(--primary-pale); padding: 18px 40px;
+        border-bottom: 1px solid #dce8f8; gap: 0;
+    }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; color: var(--text-muted); padding: 0 20px; }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; background: #dce8f8; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+    .step.active .step-num { background: var(--primary-light); color: #fff; }
+    .step.active { color: var(--primary-dark); }
+    .step-sep { width: 40px; height: 2px; background: #dce8f8; }
+
+    .reg-body { padding: 48px 60px; }
 
     .section-label {
-        font-size: 0.78rem; font-weight: 700; letter-spacing: 1px;
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px;
         text-transform: uppercase; color: var(--primary-light);
-        margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+        margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
     }
-    .section-label::after {
-        content: ''; flex: 1; height: 1px; background: #dce8f8;
-    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #dce8f8; }
 
-    .form-label { font-weight: 600; color: var(--text-dark); font-size: 0.92rem; margin-bottom: 6px; }
+    .form-label { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; margin-bottom: 8px; display: block; }
     .form-control, select.form-control {
         border: 2px solid #dce8f8; border-radius: var(--radius-sm);
-        padding: 11px 15px; font-size: 0.97rem;
+        padding: 14px 18px; font-size: 1.05rem;
         background: #f5f9ff; transition: all 0.25s; width: 100%;
     }
     .form-control:focus, select.form-control:focus {
         border-color: var(--primary-light); background: #fff;
-        box-shadow: 0 0 0 3px rgba(30,136,229,0.12); outline: none;
+        box-shadow: 0 0 0 4px rgba(30,136,229,0.1); outline: none;
     }
+    .form-control::placeholder { color: #b0bec5; }
 
-    /* Role cards */
-    .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 8px; }
-    .role-opt input[type="radio"] { position: absolute; opacity: 0; }
+    .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px; }
     .role-opt { position: relative; }
+    .role-opt input[type="radio"] { position: absolute; opacity: 0; }
     .role-card {
         border: 2px solid #dce8f8; border-radius: var(--radius-md);
-        padding: 20px 16px; text-align: center; cursor: pointer;
+        padding: 28px 20px; text-align: center; cursor: pointer;
         transition: all 0.25s; background: #f5f9ff;
     }
-    .role-card:hover { border-color: var(--primary-light); transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+    .role-card:hover { border-color: var(--primary-light); transform: translateY(-4px); box-shadow: var(--shadow-sm); }
     .role-opt input:checked + .role-card {
         border-color: var(--primary);
         background: linear-gradient(135deg, var(--primary-light), var(--primary));
-        color: #fff; transform: translateY(-3px); box-shadow: var(--shadow-md);
+        color: #fff; transform: translateY(-4px); box-shadow: var(--shadow-md);
     }
-    .role-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-    .role-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
-    .role-desc { font-size: 0.8rem; opacity: 0.75; }
+    .role-icon { font-size: 2.4rem; margin-bottom: 12px; display: block; }
+    .role-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; }
+    .role-desc { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; }
 
-    /* File upload */
     .file-zone {
         border: 2px dashed #b3cef5; border-radius: var(--radius-sm);
-        padding: 18px; text-align: center; background: #f5f9ff;
+        padding: 24px; text-align: center; background: #f5f9ff;
         cursor: pointer; transition: all 0.25s; position: relative;
+        min-height: 90px; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 6px;
     }
     .file-zone:hover { border-color: var(--primary-light); background: var(--primary-pale); }
     .file-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
-    /* Password strength */
-    .strength-bar { height: 5px; border-radius: 3px; margin-top: 6px; background: #dce8f8; overflow: hidden; }
+    .strength-bar  { height: 6px; border-radius: 3px; margin-top: 8px; background: #dce8f8; overflow: hidden; }
     .strength-fill { height: 100%; border-radius: 3px; transition: width 0.4s, background 0.4s; width: 0; }
-    .strength-text { font-size: 0.8rem; margin-top: 4px; }
+    .strength-text { font-size: 0.82rem; margin-top: 5px; font-weight: 600; }
 
     .btn-register {
         background: linear-gradient(135deg, var(--primary-light), var(--primary));
         color: #fff; border: none;
-        padding: 14px; border-radius: var(--radius-pill);
-        font-size: 1.1rem; font-weight: 700; width: 100%;
+        padding: 17px; border-radius: var(--radius-pill);
+        font-size: 1.15rem; font-weight: 700; width: 100%;
         cursor: pointer; transition: all 0.3s;
-        box-shadow: 0 6px 18px rgba(21,101,192,0.35);
-        margin-top: 10px;
+        box-shadow: 0 6px 20px rgba(21,101,192,0.35);
+        margin-top: 14px;
     }
-    .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(21,101,192,0.45); }
+    .btn-register:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(21,101,192,0.45); }
 
     .form-errors {
         background: #fce4ec; border-left: 4px solid #e91e63;
-        color: #880e4f; padding: 12px 16px; border-radius: var(--radius-sm);
-        margin-bottom: 24px; font-size: 0.92rem;
+        color: #880e4f; padding: 14px 18px; border-radius: var(--radius-sm);
+        margin-bottom: 28px; font-size: 0.95rem;
     }
-    .divider { border-color: #dce8f8; margin: 28px 0 20px; }
-    .login-link { text-align: center; color: var(--text-muted); font-size: 0.95rem; }
-    .login-link a { color: var(--primary-light); font-weight: 600; text-decoration: none; }
+    .divider { border-color: #dce8f8; margin: 32px 0 22px; }
+    .login-link { text-align: center; color: var(--text-muted); font-size: 1rem; }
+    .login-link a { color: var(--primary-light); font-weight: 700; text-decoration: none; }
     .login-link a:hover { text-decoration: underline; }
 
-    @media (max-width: 600px) {
-        .reg-body { padding: 24px 18px; }
-        .reg-header { padding: 30px 20px; }
+    @media (max-width: 768px) {
+        .reg-header { padding: 36px 28px; }
+        .reg-body   { padding: 32px 24px; }
+        .role-grid  { grid-template-columns: 1fr; }
+        .steps-bar  { flex-wrap: wrap; gap: 10px; padding: 14px 20px; }
+        .step-sep   { display: none; }
+    }
+    @media (max-width: 480px) {
+        .reg-header h1 { font-size: 1.8rem; }
+        .reg-body { padding: 24px 16px; }
     }
 </style>
 
 <div class="reg-wrapper">
     <div class="reg-card">
+
         <div class="reg-header">
-            <h1><i class="fas fa-user-graduate"></i> Join EduLearn</h1>
+            <h1><i class="fas fa-user-graduate me-2"></i>Join EduLearn</h1>
             <p>Create your free account and start learning today</p>
         </div>
+
+        <div class="steps-bar">
+            <div class="step active"><div class="step-num">1</div> Personal Info</div>
+            <div class="step-sep"></div>
+            <div class="step active"><div class="step-num">2</div> Account Type</div>
+            <div class="step-sep"></div>
+            <div class="step active"><div class="step-num">3</div> Security</div>
+        </div>
+
         <div class="reg-body">
             {% if form.errors %}
                 <div class="form-errors">
                     <i class="fas fa-exclamation-circle me-1"></i>
                     <strong>Please fix the following:</strong>
-                    <ul class="mb-0 mt-1 ps-3">
+                    <ul class="mb-0 mt-2 ps-3">
                         {% for field, errors in form.errors.items %}
                             {% for error in errors %}<li>{{ field|title }}: {{ error }}</li>{% endfor %}
                         {% endfor %}
@@ -127,9 +162,8 @@
             <form method="post" enctype="multipart/form-data" id="regForm">
                 {% csrf_token %}
 
-                <!-- Personal info -->
                 <div class="section-label"><i class="fas fa-user"></i> Personal Information</div>
-                <div class="row g-3 mb-3">
+                <div class="row g-4 mb-4">
                     <div class="col-sm-6">
                         <label class="form-label">First Name</label>
                         {{ form.first_name }}
@@ -148,41 +182,39 @@
                     </div>
                 </div>
 
-                <!-- Role -->
                 <div class="section-label"><i class="fas fa-id-badge"></i> Account Type</div>
-                <div class="role-grid mb-4">
+                <div class="role-grid mb-5">
                     <div class="role-opt">
                         <input type="radio" name="role" value="student" id="role_student"
                                {% if not form.role.value or form.role.value == 'student' %}checked{% endif %}>
                         <label for="role_student" class="role-card">
-                            <span class="role-icon">👨‍🎓</span>
+                            <span class="role-icon">&#x1F468;&#x200D;&#x1F393;</span>
                             <div class="role-name">Student</div>
-                            <div class="role-desc">Enroll in courses &amp; learn</div>
+                            <div class="role-desc">Enroll in courses and track your progress</div>
                         </label>
                     </div>
                     <div class="role-opt">
                         <input type="radio" name="role" value="instructor" id="role_instructor"
                                {% if form.role.value == 'instructor' %}checked{% endif %}>
                         <label for="role_instructor" class="role-card">
-                            <span class="role-icon">👨‍🏫</span>
+                            <span class="role-icon">&#x1F468;&#x200D;&#x1F3EB;</span>
                             <div class="role-name">Instructor</div>
-                            <div class="role-desc">Create &amp; manage courses</div>
+                            <div class="role-desc">Create and manage your own courses</div>
                         </label>
                     </div>
                     <div class="role-opt">
                         <input type="radio" name="role" value="admin" id="role_admin"
                                {% if form.role.value == 'admin' %}checked{% endif %}>
                         <label for="role_admin" class="role-card">
-                            <span class="role-icon">👨‍💼</span>
+                            <span class="role-icon">&#x1F468;&#x200D;&#x1F4BC;</span>
                             <div class="role-name">Administrator</div>
-                            <div class="role-desc">Manage the platform</div>
+                            <div class="role-desc">Manage the platform and all users</div>
                         </label>
                     </div>
                 </div>
 
-                <!-- Optional -->
                 <div class="section-label"><i class="fas fa-sliders-h"></i> Optional Details</div>
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-sm-6">
                         <label class="form-label">Date of Birth</label>
                         {{ form.date_of_birth }}
@@ -191,15 +223,14 @@
                         <label class="form-label">Profile Photo</label>
                         <div class="file-zone" id="fileZone">
                             {{ form.profile_photo }}
-                            <i class="fas fa-camera fa-lg mb-1" style="color:var(--primary-light)"></i>
-                            <div id="fileName" style="font-size:0.88rem;color:var(--text-muted)">Click to upload photo</div>
+                            <i class="fas fa-camera fa-2x" style="color:var(--primary-light)"></i>
+                            <div id="fileName" style="font-size:0.9rem;color:var(--text-muted)">Click to upload a photo</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Password -->
                 <div class="section-label"><i class="fas fa-lock"></i> Security</div>
-                <div class="row g-3 mb-2">
+                <div class="row g-4 mb-2">
                     <div class="col-sm-6">
                         <label class="form-label">Password</label>
                         {{ form.password1 }}
@@ -224,7 +255,6 @@
 </div>
 
 <script>
-    // Password strength
     document.getElementById('id_password1').addEventListener('input', function () {
         const pw = this.value;
         let score = 0;
@@ -235,16 +265,14 @@
         if (/[^A-Za-z0-9]/.test(pw)) score++;
         const fill = document.getElementById('strengthFill');
         const text = document.getElementById('strengthText');
-        const pct  = (score / 5) * 100;
-        fill.style.width = pct + '%';
+        fill.style.width = (score / 5 * 100) + '%';
         if (score <= 1) { fill.style.background = '#e53935'; text.innerHTML = '<span style="color:#e53935">Weak</span>'; }
         else if (score <= 3) { fill.style.background = '#fb8c00'; text.innerHTML = '<span style="color:#fb8c00">Medium</span>'; }
         else { fill.style.background = '#43a047'; text.innerHTML = '<span style="color:#43a047">Strong</span>'; }
     });
 
-    // File name display
     document.querySelector('#fileZone input[type="file"]').addEventListener('change', function () {
-        document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'Click to upload photo';
+        document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'Click to upload a photo';
     });
 </script>
 {% endblock %}

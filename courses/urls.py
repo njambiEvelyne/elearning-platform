@@ -3,6 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     instructor_dashboard,
     add_course,
+    edit_course,
+    delete_course,
     CourseViewSet,
     LessonViewSet,
     CourseDetailView,
@@ -29,6 +31,8 @@ urlpatterns = [
     path("browse/", courses_list, name="courses_list"),
     path("instructor/", instructor_dashboard, name="instructor_dashboard"),
     path("instructor/add/", add_course, name="add_course"),
+    path("instructor/<int:course_id>/edit/", edit_course, name="edit_course"),
+    path("instructor/<int:course_id>/delete/", delete_course, name="delete_course"),
     path("<int:course_id>/", CourseDetailView.as_view(), name="course_detail"),
     path("<int:course_id>/enroll/", enroll_course, name="enroll_course"),
     path("<int:course_id>/unenroll/", unenroll_course, name="unenroll_course"),
