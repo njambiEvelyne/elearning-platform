@@ -1,10 +1,141 @@
 {% extends 'base.html' %}
+{% block title %}{% if editing %}Edit{% else %}New{% endif %} Course – EduLearn{% endblock %}
 
 {% block content %}
-<h2>Add Course</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+<style>
+    body { background: var(--bg-page); }
+
+    .form-wrapper {
+        display: flex; align-items: flex-start; justify-content: center;
+        padding: 40px 0 60px;
+    }
+    .form-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        max-width: 720px; width: 100%;
+    }
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+        color: #fff; padding: 40px 48px; position: relative; overflow: hidden;
+    }
+    .form-header::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="200" height="200" fill="url(%23p)"/></svg>');
+    }
+    .breadcrumb-nav { position: relative; z-index: 1; margin-bottom: 16px; }
+    .breadcrumb-nav a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.9rem; }
+    .breadcrumb-nav a:hover { color: #fff; }
+    .breadcrumb-nav span { color: rgba(255,255,255,0.5); margin: 0 8px; }
+    .form-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; position: relative; z-index: 1; }
+    .form-header p  { opacity: 0.88; margin: 0; position: relative; z-index: 1; }
+
+    .form-body { padding: 44px 48px; }
+
+    .form-label { font-weight: 600; color: var(--text-dark); font-size: 0.95rem; margin-bottom: 8px; display: block; }
+    .form-label span { color: #ef5350; margin-left: 2px; }
+    .form-control {
+        border: 2px solid #dce8f8; border-radius: var(--radius-sm);
+        padding: 14px 18px; font-size: 1.05rem;
+        background: #f5f9ff; transition: all 0.25s; width: 100%;
+    }
+    .form-control:focus {
+        border-color: var(--primary-light); background: #fff;
+        box-shadow: 0 0 0 4px rgba(30,136,229,0.1); outline: none;
+    }
+    .form-control::placeholder { color: #b0bec5; }
+    textarea.form-control { min-height: 160px; resize: vertical; }
+
+    .char-count { font-size: 0.82rem; color: var(--text-muted); text-align: right; margin-top: 4px; }
+
+    .form-actions { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
+    .btn-save {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 15px 40px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 1.05rem;
+        cursor: pointer; transition: all 0.3s;
+        box-shadow: 0 6px 18px rgba(21,101,192,0.35);
+    }
+    .btn-save:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(21,101,192,0.45); }
+    .btn-cancel {
+        background: transparent; border: 2px solid #90a4ae;
+        color: #546e7a; padding: 13px 32px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 1.05rem;
+        text-decoration: none; transition: all 0.3s;
+    }
+    .btn-cancel:hover { background: #546e7a; color: #fff; transform: translateY(-2px); }
+
+    @media (max-width: 600px) {
+        .form-header { padding: 30px 24px; }
+        .form-body   { padding: 30px 24px; }
+        .form-actions { flex-direction: column; }
+        .btn-save, .btn-cancel { width: 100%; text-align: center; }
+    }
+</style>
+
+<div class="form-wrapper">
+    <div class="form-card">
+        <div class="form-header">
+            <div class="breadcrumb-nav">
+                <a href="{% url 'courses:instructor_dashboard' %}">Dashboard</a>
+                <span>/</span>
+                <span>{% if editing %}Edit Course{% else %}New Course{% endif %}</span>
+            </div>
+            <h1>
+                <i class="fas fa-{% if editing %}edit{% else %}plus-circle{% endif %} me-2"></i>
+                {% if editing %}Edit Course{% else %}Create New Course{% endif %}
+            </h1>
+            <p>{% if editing %}Update your course details below.{% else %}Fill in the details to create a new course for your students.{% endif %}</p>
+        </div>
+
+        <div class="form-body">
+            <form method="post" id="courseForm">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label" for="{{ form.title.id_for_label }}">
+                        Course Title <span>*</span>
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div style="color:#ef5350;font-size:0.88rem;margin-top:5px;">{{ form.title.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">
+                        Course Description <span>*</span>
+                    </label>
+                    {{ form.description }}
+                    <div class="char-count" id="charCount">0 characters</div>
+                    {% if form.description.errors %}
+                        <div style="color:#ef5350;font-size:0.88rem;margin-top:5px;">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i>
+                        {% if editing %}Save Changes{% else %}Create Course{% endif %}
+                    </button>
+                    <a href="{% url 'courses:instructor_dashboard' %}" class="btn-cancel">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const desc = document.getElementById('{{ form.description.id_for_label }}');
+    const counter = document.getElementById('charCount');
+    function updateCount() {
+        counter.textContent = desc.value.length + ' characters';
+    }
+    desc.addEventListener('input', updateCount);
+    updateCount();
+</script>
 {% endblock %}
