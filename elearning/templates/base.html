@@ -7,54 +7,54 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Enhanced Navigation Styles */
+        :root {
+            --primary:       #1a73e8;
+            --primary-dark:  #1558b0;
+            --primary-light: #4a9af4;
+            --accent:        #0d47a1;
+            --bg-gradient:   linear-gradient(135deg, #1a73e8, #1558b0);
+            --bg-page:       linear-gradient(135deg, #1a237e 0%, #1565c0 100%);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        /* ── Navbar ── */
         .navbar {
-            background: linear-gradient(135deg, #2c3e50, #34495e) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #0d1b3e, #1a2f6b) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             padding: 12px 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            backdrop-filter: blur(10px);
         }
 
         .navbar-brand {
             font-size: 1.8rem !important;
             font-weight: 700 !important;
-            background: linear-gradient(135deg, #32CD32, #28a745);
+            background: linear-gradient(135deg, #4a9af4, #1a73e8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: none !important;
             transition: all 0.3s ease;
         }
+        .navbar-brand:hover { transform: scale(1.05); filter: brightness(1.2); }
 
-        .navbar-brand:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-        }
-
-        .navbar-nav {
-            gap: 8px;
-        }
+        .navbar-nav { gap: 8px; }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+            color: rgba(255,255,255,0.9) !important;
             font-weight: 500 !important;
             padding: 10px 20px !important;
             border-radius: 25px !important;
             transition: all 0.3s ease !important;
-            position: relative;
-            overflow: hidden;
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 0.95rem;
         }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
+        .nav-link:hover {
+            color: white !important;
+            backgron: absolute;
             top: 0;
             left: -100%;
             width: 100%;
