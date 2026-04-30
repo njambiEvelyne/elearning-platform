@@ -119,9 +119,13 @@
         {% endif %}
     </div>
 
-    {% if lessons and is_enrolled or can_manage %}
+    {% if lessons and (is_enrolled or can_manage or is_guest_preview) %}
         <div class="lessons-section">
-            <h3><i class="fas fa-list"></i> Course Lessons</h3>
+            <h3><i class="fas fa-list"></i> Course Lessons
+                {% if is_guest_preview %}
+                    <span class="badge bg-info">Guest Preview - First Lesson Only</span>
+                {% endif %}
+            </h3>
             <div class="lessons-list">
                 {% for lesson in lessons %}
                     <div class="lesson-item">
@@ -601,6 +605,85 @@
             align-self: stretch;
         }
     }
+
+    /* Guest Preview Styles */
+    .guest-preview-alert {
+        background: linear-gradient(135deg, #fff3cd 0%, #fffacd 100%) !important;
+        border: 2px solid #ffc107 !important;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .guest-preview-content h4 {
+        color: #856404;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .guest-preview-content p {
+        color: #856404;
+        margin: 8px 0;
+    }
+
+    .guest-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .guest-actions .btn {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .not-enrolled-alert {
+        margin: 20px 0;
+    }
+
+    .not-enrolled-alert .alert {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%) !important;
+        border: 2px solid #17a2b8 !important;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .not-enrolled-alert h4 {
+        color: #0c5460;
+        margin-bottom: 10px;
+    }
+
+    .not-enrolled-alert p {
+        color: #0c5460;
+        margin-bottom: 8px;
+    }
+
+    .enrollment-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .enrollment-options .btn {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    @media (max-width: 768px) {
+        .guest-actions,
+        .enrollment-options {
+            flex-direction: column;
+        }
+
+        .guest-actions .btn,
+        .enrollment-options .btn {
+            width: 100%;
+            min-width: unset;
+        }
+    }
 </style>
 
 {% endblock %}
+
