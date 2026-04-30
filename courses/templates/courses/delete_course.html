@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Delete Course - EduLearn{% endblock %}
+{% block content %}
+<style>
+body { background: var(--bg-page); }
+.wrapper { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 30px 0; }
+.card { background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; max-width: 620px; width: 100%; }
+.card-header { background: linear-gradient(135deg, #b71c1c, #e53935); color: #fff; padding: 40px; text-align: center; }
+.warn-icon { font-size: 4rem; display: block; margin-bottom: 14px; animation: shake 1.5s ease-in-out infinite; }
+@keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-6deg)} 75%{transform:rotate(6deg)} }
+.card-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+.card-header p  { opacity: 0.9; margin: 0; }
+.card-body { padding: 36px; }
+.course-box { background: #fff8f8; border: 2px solid #ffcdd2; border-radius: var(--radius-md); padding: 22px; margin-bottom: 24px; }
+.course-box h3 { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px; }
+.course-meta { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.88rem; color: var(--text-muted); }
+.warning-box { background: #fff3e0; border-left: 4px solid #fb8c00; border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 28px; }
+.warning-box h4 { font-size: 0.95rem; font-weight: 700; color: #e65100; margin-bottom: 10px; }
+.warning-box ul { margin: 0; padding-left: 18px; color: #5d4037; font-size: 0.9rem; }
+.warning-box ul li { margin-bottom: 5px; }
+.action-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn-confirm { background: linear-gradient(135deg, #e53935, #b71c1c); color: #fff; border: none; padding: 14px 34px; border-radius: var(--radius-pill); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+.btn-confirm:hover { transform: translateY(-3px); color: #fff; }
+.btn-back { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: #fff; border: none; padding: 14px 34px; border-radius: var(--radius-pill); font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.3s; display: inline-block; }
+.btn-back:hover { transform: translateY(-3px); color: #fff; }
+@media (max-width: 600px) { .card-body { padding: 24px 18px; } .action-row { flex-direction: column; align-items: center; } }
+</style>
+<div class="wrapper">
+  <div class="card">
+    <div class="card-header">
+      <span class="warn-icon">&#x26A0;&#xFE0F;</span>
+      <h1>Delete Course</h1>
+      <p>This action is permanent and cannot be undone</p>
+    </div>
+    <div class="card-body">
+      <div class="course-box">
+        <h3>{{ course.title }}</h3>
+        <div class="course-meta">
+          <span><i class="fas fa-list"></i> {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }}</span>
+          <span><i class="fas fa-users"></i> {{ course.enrollment_set.count }} student{{ course.enrollment_set.count|pluralize }}</span>
+          <span><i class="fas fa-calendar"></i> Created {{ course.created_at|date:"M d, Y" }}</span>
+        </div>
+      </div>
+      <div class="warning-box">
+        <h4><i class="fas fa-exclamation-triangle me-1"></i> Everything will be permanently deleted:</h4>
+        <ul>
+          <li>All {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }} and their content</li>
+          <li>All {{ course.enrollment_set.count }} student enrollment{{ course.enrollment_set.count|pluralize }}</li>
+          <li>All student progress data for this course</li>
+        </ul>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="action-row">
+          <button type="submit" class="btn-confirm"><i class="fas fa-trash me-2"></i> Yes, Delete Course</button>
+          <a href="{% url 'courses:instructor_dashboard' %}" class="btn-back"><i class="fas fa-arrow-left me-2"></i> Keep Course</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,315 +1,239 @@
 {% extends 'base.html' %}
+{% block title %}Manage Lessons – {{ course.title }} – EduLearn{% endblock %}
 
 {% block content %}
-<div class="manage-lessons-container">
-    <div class="header-section">
-        <div class="course-info">
-            <h1><i class="fas fa-book"></i> {{ course.title }}</h1>
-            <p class="course-description">{{ course.description }}</p>
-        </div>
-        <div class="header-actions">
-            <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline-secondary">
-                <i class="fas fa-eye"></i> View Course
-            </a>
-            <a href="{% url 'courses:add_lesson' course.id %}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add New Lesson
-            </a>
-        </div>
-    </div>
-
-    <div class="lessons-section">
-        <div class="section-header">
-            <h2><i class="fas fa-list"></i> Course Lessons ({{ lessons.count }})</h2>
-        </div>
-
-        {% if lessons %}
-            <div class="lessons-table-container">
-                <table class="table lessons-table">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Duration</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for lesson in lessons %}
-                            <tr>
-                                <td>
-                                    <span class="order-badge">{{ lesson.order|default:"-" }}</span>
-                                </td>
-                                <td>
-                                    <div class="lesson-title-cell">
-                                        <strong>{{ lesson.title }}</strong>
-                                        {% if lesson.video_url %}
-                                            <i class="fas fa-video text-primary" title="Has video content"></i>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ lesson.status }}">
-                                        {{ lesson.get_status_display }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if lesson.duration_minutes > 0 %}
-                                        {{ lesson.duration_minutes }} min
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <small class="text-muted">{{ lesson.created_at|date:"M d, Y" }}</small>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="{% url 'courses:lesson_detail' course.id lesson.id %}" 
-                                           class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{% url 'courses:edit_lesson' course.id lesson.id %}" 
-                                           class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{% url 'courses:delete_lesson' course.id lesson.id %}" 
-                                           class="btn btn-sm btn-outline-danger" title="Delete"
-                                           onclick="return confirm('Are you sure you want to delete this lesson?')">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <h3>No lessons yet</h3>
-                <p>Start building your course by adding your first lesson.</p>
-                <a href="{% url 'courses:add_lesson' course.id %}" class="btn btn-success btn-lg">
-                    <i class="fas fa-plus"></i> Add First Lesson
-                </a>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
 <style>
-    .manage-lessons-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 20px;
-    }
+    body { background: var(--bg-page); }
+    .page-wrapper { padding: 10px 0 50px; }
 
-    .header-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 40px;
-        padding: 30px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        color: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    /* Course header card */
+    .course-header {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 30px 36px;
+        margin-bottom: 28px;
+        box-shadow: var(--shadow-md);
+        display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
     }
-
-    .course-info h1 {
-        margin: 0 0 10px 0;
-        font-size: 28px;
-        font-weight: 600;
+    .course-icon {
+        width: 64px; height: 64px; border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; flex-shrink: 0;
     }
+    .course-info { flex: 1; min-width: 200px; }
+    .course-info h1 { font-size: 1.6rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 4px; }
+    .course-info p  { color: var(--text-muted); margin: 0; font-size: 0.95rem;
+                      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .breadcrumb-nav { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .breadcrumb-nav a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb-nav a:hover { text-decoration: underline; }
+    .breadcrumb-nav span { margin: 0 6px; }
 
-    .course-description {
-        margin: 0;
-        opacity: 0.9;
-        font-size: 16px;
-        line-height: 1.5;
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-add {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 12px 24px;
+        border-radius: var(--radius-pill); font-weight: 700; font-size: 0.95rem;
+        text-decoration: none; transition: all 0.3s;
+        box-shadow: 0 4px 14px rgba(21,101,192,0.35);
+        display: flex; align-items: center; gap: 8px;
     }
-
-    .header-actions {
-        display: flex;
-        gap: 10px;
-        flex-shrink: 0;
+    .btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(21,101,192,0.45); color: #fff; }
+    .btn-view {
+        background: transparent; border: 2px solid rgba(255,255,255,0.4);
+        color: var(--primary-light); padding: 10px 20px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.9rem;
+        text-decoration: none; transition: all 0.25s;
+        border-color: var(--primary-light);
     }
+    .btn-view:hover { background: var(--primary-light); color: #fff; transform: translateY(-2px); }
 
-    .header-actions .btn {
-        border-color: rgba(255,255,255,0.3);
-        color: white;
-    }
-
-    .header-actions .btn:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: white;
-    }
-
-    .header-actions .btn-success {
-        background: #28a745;
-        border-color: #28a745;
-    }
-
-    .header-actions .btn-success:hover {
-        background: #218838;
-        border-color: #1e7e34;
-    }
-
-    .lessons-section {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    /* Lessons table card */
+    .lessons-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
         overflow: hidden;
     }
-
-    .section-header {
-        padding: 25px 30px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
+    .lessons-card-header {
+        padding: 22px 30px;
+        background: var(--primary-pale);
+        border-bottom: 2px solid #dce8f8;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .lessons-card-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); margin: 0; }
+    .count-badge {
+        background: var(--primary-light); color: #fff;
+        padding: 4px 12px; border-radius: var(--radius-pill);
+        font-size: 0.82rem; font-weight: 700;
     }
 
-    .section-header h2 {
-        margin: 0;
-        color: #2c3e50;
-        font-size: 22px;
-        font-weight: 600;
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+        background: #f5f9ff; padding: 14px 20px;
+        font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px;
+        text-transform: uppercase; color: var(--text-muted);
+        border-bottom: 2px solid #dce8f8; white-space: nowrap;
+    }
+    tbody td { padding: 18px 20px; border-bottom: 1px solid #eef2f8; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #f5f9ff; }
+
+    .order-num {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: var(--primary-pale); color: var(--primary);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 0.88rem;
+    }
+    .lesson-title { font-weight: 600; color: var(--primary-dark); font-size: 0.97rem; }
+    .lesson-title .video-tag {
+        display: inline-flex; align-items: center; gap: 4px;
+        background: #e3f2fd; color: var(--primary-light);
+        padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;
+        font-weight: 600; margin-left: 8px;
     }
 
-    .lessons-table-container {
-        overflow-x: auto;
+    .status-pill {
+        padding: 5px 14px; border-radius: var(--radius-pill);
+        font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
     }
+    .status-published { background: #e8f5e9; color: #2e7d32; }
+    .status-draft     { background: #fff8e1; color: #f57f17; }
 
-    .lessons-table {
-        margin: 0;
-        width: 100%;
-    }
+    .dur-text { font-size: 0.88rem; color: var(--text-muted); }
 
-    .lessons-table th {
-        background: #f8f9fa;
-        border-top: none;
-        font-weight: 600;
-        color: #495057;
-        padding: 15px 20px;
-        border-bottom: 2px solid #e9ecef;
+    /* Row actions */
+    .row-actions { display: flex; gap: 6px; }
+    .btn-icon {
+        width: 34px; height: 34px; border-radius: var(--radius-sm);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; text-decoration: none; transition: all 0.2s;
+        border: 2px solid transparent;
     }
+    .btn-icon-view  { background: var(--primary-pale); color: var(--primary-light); border-color: #dce8f8; }
+    .btn-icon-view:hover  { background: var(--primary-light); color: #fff; border-color: var(--primary-light); }
+    .btn-icon-edit  { background: #fff8e1; color: #f57f17; border-color: #ffe082; }
+    .btn-icon-edit:hover  { background: #f57f17; color: #fff; border-color: #f57f17; }
+    .btn-icon-del   { background: #fce4ec; color: #e53935; border-color: #f48fb1; }
+    .btn-icon-del:hover   { background: #e53935; color: #fff; border-color: #e53935; }
 
-    .lessons-table td {
-        padding: 20px;
-        vertical-align: middle;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .lessons-table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    .order-badge {
-        display: inline-block;
-        width: 30px;
-        height: 30px;
-        background: #6c757d;
-        color: white;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 30px;
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    .lesson-title-cell {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .lesson-title-cell strong {
-        color: #2c3e50;
-    }
-
-    .badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-published {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .badge-draft {
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-    }
-
-    .action-buttons .btn {
-        padding: 6px 10px;
-        border-radius: 6px;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 80px 40px;
-        color: #6c757d;
-    }
-
-    .empty-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-
-    .empty-state h3 {
-        color: #495057;
-        margin-bottom: 15px;
-        font-size: 24px;
-    }
-
-    .empty-state p {
-        font-size: 16px;
-        margin-bottom: 30px;
-    }
+    /* Empty state */
+    .empty-state { text-align: center; padding: 70px 30px; }
+    .empty-state .icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state h3 { font-size: 1.4rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px; }
+    .empty-state p  { color: var(--text-muted); margin-bottom: 28px; }
 
     @media (max-width: 768px) {
-        .header-section {
-            flex-direction: column;
-            gap: 20px;
-            align-items: stretch;
-        }
-
-        .header-actions {
-            justify-content: center;
-        }
-
-        .lessons-table th,
-        .lessons-table td {
-            padding: 10px 8px;
-            font-size: 14px;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .empty-state {
-            padding: 60px 20px;
-        }
+        .course-header { flex-direction: column; }
+        .header-actions { width: 100%; justify-content: center; }
+        thead th:nth-child(4), tbody td:nth-child(4),
+        thead th:nth-child(5), tbody td:nth-child(5) { display: none; }
     }
 </style>
 
+<div class="page-wrapper">
+
+    <!-- Course header -->
+    <div class="course-header">
+        <div class="course-icon">📖</div>
+        <div class="course-info">
+            <div class="breadcrumb-nav">
+                <a href="{% url 'courses:instructor_dashboard' %}">Dashboard</a>
+                <span>/</span> Manage Lessons
+            </div>
+            <h1>{{ course.title }}</h1>
+            <p>{{ course.description }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'courses:course_detail' course.id %}" class="btn-view">
+                <i class="fas fa-eye me-1"></i> Preview
+            </a>
+            <a href="{% url 'courses:add_lesson' course.id %}" class="btn-add">
+                <i class="fas fa-plus"></i> Add Lesson
+            </a>
+        </div>
+    </div>
+
+    <!-- Lessons table -->
+    <div class="lessons-card">
+        <div class="lessons-card-header">
+            <h2><i class="fas fa-list me-2"></i> Lessons</h2>
+            <span class="count-badge">{{ lessons.count }} total</span>
+        </div>
+
+        {% if lessons %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Duration</th>
+                        <th>Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson in lessons %}
+                    <tr>
+                        <td><span class="order-num">{{ lesson.order|default:forloop.counter }}</span></td>
+                        <td>
+                            <div class="lesson-title">
+                                {{ lesson.title }}
+                                {% if lesson.video_url %}
+                                    <span class="video-tag"><i class="fas fa-video"></i> Video</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ lesson.status }}">
+                                {{ lesson.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="dur-text">
+                                {% if lesson.duration_minutes > 0 %}
+                                    <i class="fas fa-clock me-1"></i>{{ lesson.duration_minutes }} min
+                                {% else %}—{% endif %}
+                            </span>
+                        </td>
+                        <td><span class="dur-text">{{ lesson.created_at|date:"M d, Y" }}</span></td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="{% url 'courses:lesson_detail' course.id lesson.id %}"
+                                   class="btn-icon btn-icon-view" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'courses:edit_lesson' course.id lesson.id %}"
+                                   class="btn-icon btn-icon-edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'courses:delete_lesson' course.id lesson.id %}"
+                                   class="btn-icon btn-icon-del" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">📝</div>
+            <h3>No lessons yet</h3>
+            <p>Start building your course by adding the first lesson.</p>
+            <a href="{% url 'courses:add_lesson' course.id %}" class="btn-add" style="display:inline-flex;">
+                <i class="fas fa-plus"></i> Add First Lesson
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}

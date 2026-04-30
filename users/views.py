@@ -78,9 +78,9 @@ def dashboard_redirect(request):
     user = request.user
 
     if user.role == "admin":
-        return redirect("users:admin_dashboard")
+        return redirect("courses:admin_course_list")
     elif user.role == "instructor":
-        return redirect("users:instructor_dashboard")
+        return redirect("courses:instructor_dashboard")
     elif user.role == "student":
         return redirect("users:student_dashboard")
     else:

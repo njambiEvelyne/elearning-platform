@@ -1,33 +1,72 @@
 from django import forms
-from .models import Course, Lesson
+from django.core.exceptions import ValidationError
+from .models import Course, Lesson, LessonMaterial
+from users.models import User
 
-"""
-This form is meant to enable the instructors to be able to add courses without logging in as admins
-"""
+CTRL = 'form-control'
+PILL_CTRL = 'form-control'
 
 
-class CourseForm(forms.ModelForm):
+class AdminCourseForm(forms.ModelForm):
+    """Admin creates / edits a course and assigns it to an instructor."""
+
+    instructor = forms.ModelChoiceField(
+        queryset=User.objects.filter(role='instructor'),
+        required=False,
+        empty_label='— Assign instructor later —',
+        widget=forms.Select(attrs={'class': CTRL}),
+    )
+
     class Meta:
-        model = Course
-        fields = ["title", "description"]
+        model  = Course
+        fields = ['title', 'description', 'instructor', 'status']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter course title'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Enter course description'}),
+            'title':       forms.TextInput(attrs={'class': CTRL, 'placeholder': 'Course title'}),
+            'description': forms.Textarea(attrs={'class': CTRL, 'rows': 4, 'placeholder': 'Course description'}),
+            'status':      forms.Select(attrs={'class': CTRL}),
         }
 
 
 class LessonForm(forms.ModelForm):
-    """
-    Form for instructors to add and edit lessons
-    """
+    """Instructor adds / edits a lesson (text notes + video URL)."""
+
     class Meta:
-        model = Lesson
-        fields = ["title", "content", "video_url", "order", "duration_minutes", "status"]
+        model  = Lesson
+        fields = ['title', 'content', 'video_url', 'order', 'duration_minutes', 'status']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter lesson title'}),
-            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Enter lesson content'}),
-            'video_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com/video (optional)'}),
-            'order': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'duration_minutes': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': 'Duration in minutes'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
+            'title':            forms.TextInput(attrs={'class': CTRL, 'placeholder': 'Lesson title'}),
+            'content':          forms.Textarea(attrs={'class': CTRL, 'rows': 8,
+                                                      'placeholder': 'Write lesson notes here…'}),
+            'video_url':        forms.URLInput(attrs={'class': CTRL,
+                                                      'placeholder': 'https://youtube.com/watch?v=… (optional)'}),
+            'order':            forms.NumberInput(attrs={'class': CTRL, 'min': '0'}),
+            'duration_minutes': forms.NumberInput(attrs={'class': CTRL, 'min': '0',
+                                                         'placeholder': 'e.g. 30'}),
+            'status':           forms.Select(attrs={'class': CTRL}),
         }
+
+
+class LessonMaterialForm(forms.ModelForm):
+    """Instructor uploads a PDF / DOC / DOCX file to a lesson."""
+
+    ALLOWED = ['.pdf', '.doc', '.docx']
+
+    class Meta:
+        model  = LessonMaterial
+        fields = ['title', 'file']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': CTRL, 'placeholder': 'e.g. Week 1 Notes'}),
+            'file':  forms.FileInput(attrs={'class': CTRL, 'accept': '.pdf,.doc,.docx'}),
+        }
+
+    def clean_file(self):
+        f = self.cleaned_data.get('file')
+        if f:
+            import os
+            _, ext = os.path.splitext(f.name)
+            if ext.lower() not in self.ALLOWED:
+                raise ValidationError(
+                    f"Only {', '.join(self.ALLOWED)} files are allowed. "
+                    f"You uploaded: {ext or 'unknown'}"
+                )
+        return f
