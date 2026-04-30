@@ -1,169 +1,181 @@
 {% extends 'base.html' %}
-
-{% block title %}Welcome to the eLearning Portal{% endblock %}
+{% block title %}EduLearn – Your Gateway to Knowledge{% endblock %}
 
 {% block content %}
 <style>
-    body {
-        background-color: #f4f8fb;
-        font-family: 'Arial', sans-serif;
-        color: #333;
-    }
-
-    /* Hero Section */
-    .hero-section {
-        position: relative;
-        background: linear-gradient(135deg, #1c7c54, #32CD32); /* Gradient background */
-        color: white;
-        text-align: center;
-        padding: 120px 0;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    }
-    .hero-section h1 {
-        font-size: 4em;
-        font-weight: bold;
-        margin-bottom: 20px;
+    /* ── Hero ── */
+    .hero {
+        background: var(--bg-page);
         color: #fff;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Text shadow for better readability */
+        text-align: center;
+        padding: 100px 20px 80px;
+        border-radius: var(--radius-lg);
+        margin: -24px -12px 40px;
+        position: relative;
+        overflow: hidden;
     }
-    .hero-section p {
-        font-size: 1.6em;
-        color: #f4f8fb;
-        margin-top: 10px;
-        font-weight: 400;
+    .hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="200" height="200" fill="url(%23p)"/></svg>');
     }
+    .hero-content { position: relative; z-index: 1; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 800; margin-bottom: 18px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .hero p  { font-size: clamp(1rem, 2.5vw, 1.4rem); opacity: 0.92; max-width: 600px; margin: 0 auto 35px; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-hero-primary {
+        background: #fff; color: var(--primary);
+        padding: 14px 36px; border-radius: var(--radius-pill);
+        font-weight: 700; font-size: 1.05rem; text-decoration: none;
+        transition: all 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); color: var(--primary-dark); }
+    .btn-hero-outline {
+        background: transparent; color: #fff;
+        border: 2px solid rgba(255,255,255,0.7);
+        padding: 12px 36px; border-radius: var(--radius-pill);
+        font-weight: 600; font-size: 1.05rem; text-decoration: none;
+        transition: all 0.3s;
+    }
+    .btn-hero-outline:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-3px); }
 
-    /* Feature Section */
-    .feature-section {
-        display: flex;
-        justify-content: space-around;
-        padding: 40px 0;
-        background-color: #ffffff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        gap: 20px;
+    /* ── Stats bar ── */
+    .stats-bar {
+        display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 28px 40px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 50px;
     }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--primary); display: block; }
+    .stat-lbl { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── Feature cards ── */
+    .section-title {
+        text-align: center; font-size: 2rem; font-weight: 700;
+        color: var(--primary-dark); margin-bottom: 10px;
+    }
+    .section-sub { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 1.05rem; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; margin-bottom: 60px; }
     .feature-card {
-        width: 30%;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 36px 28px;
         text-align: center;
-        padding: 20px;
-        border-radius: 10px;
-        background-color: #f9f9f9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        box-shadow: var(--shadow-sm);
+        border-top: 4px solid var(--primary-light);
+        transition: all 0.3s;
     }
-    .feature-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    .feature-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); }
+    .feature-icon-wrap {
+        width: 70px; height: 70px; border-radius: 50%;
+        background: var(--primary-pale);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px; font-size: 1.8rem; color: var(--primary);
     }
-    .feature-card img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 10px;
-    }
-    .feature-card h3 {
-        margin-top: 15px;
-        color: #32CD32;
-        font-size: 1.8em;
-    }
-    .feature-card p {
-        color: #555;
-        font-size: 1.1em;
-    }
+    .feature-card h3 { font-size: 1.25rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px; }
+    .feature-card p  { color: var(--text-muted); font-size: 0.97rem; line-height: 1.6; margin: 0; }
 
-    /* Call-to-Action Section */
+    /* ── CTA ── */
     .cta-section {
-        background-color: #32CD32;
-        color: white;
+        background: var(--bg-page);
+        border-radius: var(--radius-lg);
+        padding: 70px 30px;
         text-align: center;
-        padding: 50px 0;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .cta-section h2 {
-        font-size: 2.8em;
+        color: #fff;
         margin-bottom: 20px;
-        font-weight: bold;
+        position: relative; overflow: hidden;
     }
-    .cta-section a {
-        background-color: white;
-        color: #32CD32;
-        padding: 12px 30px;
-        font-size: 1.2em;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+    .cta-section::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="q" width="50" height="50" patternUnits="userSpaceOnUse"><rect x="20" y="20" width="2" height="2" fill="rgba(255,255,255,0.06)"/></pattern></defs><rect width="200" height="200" fill="url(%23q)"/></svg>');
     }
-    .cta-section a:hover {
-        background-color: #28a745;
-        color: white;
-        transform: scale(1.1);
+    .cta-section h2 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; margin-bottom: 16px; position: relative; }
+    .cta-section p  { font-size: 1.1rem; opacity: 0.9; margin-bottom: 32px; position: relative; }
+    .btn-cta {
+        background: #fff; color: var(--primary);
+        padding: 15px 44px; border-radius: var(--radius-pill);
+        font-weight: 700; font-size: 1.1rem; text-decoration: none;
+        transition: all 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        position: relative;
     }
+    .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); color: var(--primary-dark); }
 
-    /* Footer */
-    .footer {
-        background-color: #222;
-        color: white;
-        padding: 20px 0;
-        text-align: center;
-        font-size: 1.2em;
+    @media (max-width: 576px) {
+        .stats-bar { gap: 20px; padding: 20px; }
+        .hero { padding: 70px 15px 60px; }
     }
-    .footer a {
-        color: #32CD32;
-        text-decoration: none;
-        font-weight: bold;
-    }
-    .footer a:hover {
-        text-decoration: underline;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .feature-section {
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .feature-card {
-            width: 80%;
-            margin-bottom: 20px;
-        }
-    }
-
 </style>
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <h1>Welcome to the eLearning Portal</h1>
-    <p>Your gateway to knowledge and learning.</p>
-</section>
-
-<!-- Feature Section -->
-<section class="feature-section">
-    <div class="feature-card">
-        <img src="/static/images/library.jpg" alt="Library">
-        <h3>Access a Wide Library</h3>
-        <p>Explore a vast collection of books, courses, and materials to help you succeed.</p>
-    </div>
-    <div class="feature-card">
-        <img src="/static/images/courses.jpg" alt="Courses">
-        <h3>Enroll in Courses</h3>
-        <p>Learn from expert instructors in a variety of fields and disciplines.</p>
-    </div>
-    <div class="feature-card">
-        <img src="/static/images/community.jpg" alt="Community">
-        <h3>Join Our Community</h3>
-        <p>Engage with fellow learners and instructors to enhance your learning experience.</p>
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>🎓 Learn Without Limits</h1>
+        <p>Access world-class courses, expert instructors, and a vibrant learning community — all in one place.</p>
+        <div class="hero-btns">
+            <a href="{% url 'courses:courses_list' %}" class="btn-hero-primary">Browse Courses</a>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'users:register' %}" class="btn-hero-outline">Get Started Free</a>
+            {% else %}
+                <a href="{% url 'users:dashboard_redirect' %}" class="btn-hero-outline">Go to Dashboard</a>
+            {% endif %}
+        </div>
     </div>
 </section>
 
-<!-- Call-to-Action Section -->
+<!-- Stats -->
+<div class="stats-bar">
+    <div class="stat"><span class="stat-num">500+</span><div class="stat-lbl">Courses Available</div></div>
+    <div class="stat"><span class="stat-num">10k+</span><div class="stat-lbl">Active Students</div></div>
+    <div class="stat"><span class="stat-num">200+</span><div class="stat-lbl">Expert Instructors</div></div>
+    <div class="stat"><span class="stat-num">95%</span><div class="stat-lbl">Satisfaction Rate</div></div>
+</div>
+
+<!-- Features -->
+<h2 class="section-title">Why Choose EduLearn?</h2>
+<p class="section-sub">Everything you need to grow your skills and advance your career.</p>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-book-open"></i></div>
+        <h3>Rich Course Library</h3>
+        <p>Explore hundreds of courses across technology, business, design, and more — curated by industry experts.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h3>Expert Instructors</h3>
+        <p>Learn from seasoned professionals who bring real-world experience directly into every lesson.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-chart-line"></i></div>
+        <h3>Track Your Progress</h3>
+        <p>Stay motivated with visual progress tracking, quizzes, and milestone achievements.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-users"></i></div>
+        <h3>Vibrant Community</h3>
+        <p>Connect with fellow learners, share insights, and grow together in a supportive environment.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-mobile-alt"></i></div>
+        <h3>Learn Anywhere</h3>
+        <p>Access your courses on any device — desktop, tablet, or mobile — at your own pace.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-certificate"></i></div>
+        <h3>Earn Certificates</h3>
+        <p>Complete courses and earn certificates that showcase your skills to employers and peers.</p>
+    </div>
+</div>
+
+<!-- CTA -->
 <section class="cta-section">
-    <h2>Ready to Begin Your Journey?</h2>
-    <a href="{% url 'users:register' %}">Sign Up Now</a>
+    <h2>Ready to Start Your Learning Journey?</h2>
+    <p>Join thousands of learners who are already transforming their careers with EduLearn.</p>
+    <a href="{% url 'users:register' %}" class="btn-cta">Create Free Account</a>
 </section>
-
-<!-- Footer -->
-<footer class="footer">
-    <p>© 2025 eLearning Portal | <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a></p>
-</footer>
-
 {% endblock %}

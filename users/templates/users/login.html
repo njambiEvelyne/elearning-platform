@@ -1,275 +1,123 @@
-{% extends "base.html" %}  
-
-{% block title %}Sign In - E-Learning Platform{% endblock %}
+{% extends "base.html" %}
+{% block title %}Sign In – EduLearn{% endblock %}
 
 {% block content %}
 <style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    body { background: var(--bg-page); }
 
     .login-wrapper {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px 0;
+        min-height: 80vh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 30px 0;
     }
-
-    .login-container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    .login-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
         overflow: hidden;
-        max-width: 500px;
-        width: 100%;
-        margin: 20px;
+        max-width: 480px; width: 100%;
     }
-
     .login-header {
-        background: linear-gradient(135deg, #32CD32, #28a745);
-        color: white;
-        padding: 40px;
-        text-align: center;
-        position: relative;
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+        color: #fff; padding: 40px 36px; text-align: center;
     }
+    .login-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .login-header p  { opacity: 0.9; margin: 0; font-size: 1rem; }
 
-    .login-header h1 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
+    .login-body { padding: 36px; }
 
-    .login-header p {
-        font-size: 1rem;
-        opacity: 0.9;
-        margin-bottom: 0;
-    }
+    .perks { background: var(--primary-pale); border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 28px; }
+    .perk-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--primary-dark); font-size: 0.93rem; }
+    .perk-item:last-child { margin-bottom: 0; }
+    .perk-item i { color: var(--primary-light); width: 18px; }
 
-    .form-section {
-        padding: 40px;
-    }
-
-    .form-group {
-        margin-bottom: 25px;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-    }
-
+    .form-label { font-weight: 600; color: var(--text-dark); font-size: 0.93rem; margin-bottom: 6px; }
     .form-control {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e1e5e9;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background-color: #f8f9fa;
+        border: 2px solid #dce8f8; border-radius: var(--radius-sm);
+        padding: 11px 15px; font-size: 0.97rem;
+        background: #f5f9ff; transition: all 0.25s;
     }
-
     .form-control:focus {
-        outline: none;
-        border-color: #32CD32;
-        background-color: white;
-        box-shadow: 0 0 0 3px rgba(50, 205, 50, 0.1);
-        transform: translateY(-1px);
+        border-color: var(--primary-light); background: #fff;
+        box-shadow: 0 0 0 3px rgba(30,136,229,0.12); outline: none;
     }
 
-    .form-control:hover {
-        border-color: #32CD32;
-        background-color: white;
+    .btn-signin {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none;
+        padding: 13px; border-radius: var(--radius-pill);
+        font-size: 1.05rem; font-weight: 700; width: 100%;
+        cursor: pointer; transition: all 0.3s;
+        box-shadow: 0 6px 18px rgba(21,101,192,0.35);
     }
+    .btn-signin:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(21,101,192,0.45); }
 
-    .submit-btn {
-        background: linear-gradient(135deg, #32CD32, #28a745);
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 20px;
-    }
-
-    .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(50, 205, 50, 0.4);
-    }
-
-    .register-link {
-        text-align: center;
-        margin-top: 25px;
-        padding-top: 25px;
-        border-top: 1px solid #e1e5e9;
-    }
-
-    .register-link a {
-        color: #32CD32;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .register-link a:hover {
-        color: #28a745;
-        text-decoration: underline;
-    }
-
-    .features-section {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-        border-radius: 12px;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-        color: #333;
-    }
-
-    .feature-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .feature-icon {
-        font-size: 1.5rem;
-        margin-right: 12px;
-        color: #32CD32;
-    }
-
-    .feature-text {
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
+    .divider { border-color: #dce8f8; margin: 24px 0; }
+    .register-link { text-align: center; color: var(--text-muted); font-size: 0.95rem; }
+    .register-link a { color: var(--primary-light); font-weight: 600; text-decoration: none; }
+    .register-link a:hover { text-decoration: underline; }
 
     .form-errors {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .form-errors ul {
-        margin: 0;
-        padding-left: 20px;
-    }
-
-    @media (max-width: 768px) {
-        .login-header {
-            padding: 30px 20px;
-        }
-        
-        .form-section {
-            padding: 30px 20px;
-        }
+        background: #fce4ec; border-left: 4px solid #e91e63;
+        color: #880e4f; padding: 12px 16px; border-radius: var(--radius-sm);
+        margin-bottom: 20px; font-size: 0.92rem;
     }
 </style>
 
 <div class="login-wrapper">
-    <div class="login-container">
+    <div class="login-card">
         <div class="login-header">
-            <h1>🎓 Welcome Back</h1>
+            <h1><i class="fas fa-graduation-cap"></i> Welcome Back</h1>
             <p>Sign in to continue your learning journey</p>
         </div>
-        
-        <div class="form-section">
-            <!-- Features Section -->
-            <div class="features-section">
-                <div class="feature-item">
-                    <span class="feature-icon">📚</span>
-                    <span class="feature-text">Access your courses and materials</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📊</span>
-                    <span class="feature-text">Track your learning progress</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">👥</span>
-                    <span class="feature-text">Connect with instructors and peers</span>
-                </div>
+        <div class="login-body">
+            <div class="perks">
+                <div class="perk-item"><i class="fas fa-book-open"></i> Access all your enrolled courses</div>
+                <div class="perk-item"><i class="fas fa-chart-line"></i> Track your learning progress</div>
+                <div class="perk-item"><i class="fas fa-users"></i> Connect with instructors &amp; peers</div>
             </div>
 
             {% if form.errors %}
                 <div class="form-errors">
-                    <strong>Please correct the following errors:</strong>
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
+                    <i class="fas fa-exclamation-circle"></i>
+                    Invalid username or password. Please try again.
                 </div>
             {% endif %}
 
             <form method="POST" id="loginForm">
                 {% csrf_token %}
-                
-                <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}">Username</label>
-                    <input type="text" 
-                           name="{{ form.username.name }}" 
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">
+                        <i class="fas fa-user me-1"></i> Username
+                    </label>
+                    <input type="text"
+                           name="{{ form.username.name }}"
                            id="{{ form.username.id_for_label }}"
-                           class="form-control" 
+                           class="form-control"
                            placeholder="Enter your username"
-                           required>
+                           required autofocus>
                 </div>
-
-                <div class="form-group">
-                    <label for="{{ form.password.id_for_label }}">Password</label>
-                    <input type="password" 
-                           name="{{ form.password.name }}" 
+                <div class="mb-4">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">
+                        <i class="fas fa-lock me-1"></i> Password
+                    </label>
+                    <input type="password"
+                           name="{{ form.password.name }}"
                            id="{{ form.password.id_for_label }}"
-                           class="form-control" 
+                           class="form-control"
                            placeholder="Enter your password"
                            required>
                 </div>
-
-                <button type="submit" class="submit-btn">
-                    Sign In
+                <button type="submit" class="btn-signin">
+                    <i class="fas fa-sign-in-alt me-2"></i> Sign In
                 </button>
             </form>
-            
-            <div class="register-link">
-                <p>Don't have an account? <a href="{% url 'users:register' %}">Create one here</a></p>
-            </div>
+
+            <hr class="divider">
+            <p class="register-link">
+                Don't have an account? <a href="{% url 'users:register' %}">Create one free</a>
+            </p>
         </div>
     </div>
 </div>
-
-<script>
-    // Form validation
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        const username = document.getElementById('{{ form.username.id_for_label }}').value;
-        const password = document.getElementById('{{ form.password.id_for_label }}').value;
-        
-        if (!username.trim()) {
-            e.preventDefault();
-            alert('Please enter your username');
-            return false;
-        }
-        
-        if (!password.trim()) {
-            e.preventDefault();
-            alert('Please enter your password');
-            return false;
-        }
-    });
-</script>
-
 {% endblock %}
