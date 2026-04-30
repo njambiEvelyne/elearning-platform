@@ -283,6 +283,22 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .role-selection-wrapper {
+        margin-bottom: 10px;
+    }
+
+    .role-descriptions {
+        margin-top: 8px;
+        padding: 10px;
+        background: rgba(0, 123, 255, 0.1);
+        border-radius: 5px;
+        border-left: 3px solid #007bff;
+    }
+
+    .role-descriptions small {
+        line-height: 1.4;
+    }
 </style>
 
 <div class="registration-wrapper">
@@ -334,33 +350,22 @@
 
                 <!-- Account Type Selection -->
                 <div class="form-group">
-                    <label>{{ form.role.label }}</label>
-                    <div class="role-selection">
-                        <div class="role-option">
-                            <input type="radio" name="role" value="student" id="role_student" {% if form.role.value == 'student' or not form.role.value %}checked{% endif %}>
-                            <label for="role_student" class="role-card">
-                                <span class="role-icon">👨‍🎓</span>
-                                <div class="role-title">Student</div>
-                                <div class="role-description">Access courses and learning materials</div>
-                            </label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" value="instructor" id="role_instructor" {% if form.role.value == 'instructor' %}checked{% endif %}>
-                            <label for="role_instructor" class="role-card">
-                                <span class="role-icon">👨‍🏫</span>
-                                <div class="role-title">Instructor</div>
-                                <div class="role-description">Create and manage courses</div>
-                            </label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" value="admin" id="role_admin" {% if form.role.value == 'admin' %}checked{% endif %}>
-                            <label for="role_admin" class="role-card">
-                                <span class="role-icon">👨‍💼</span>
-                                <div class="role-title">Administrator</div>
-                                <div class="role-description">Manage platform and users</div>
-                            </label>
+                    <label for="role">{{ form.role.label }}</label>
+                    <div class="role-selection-wrapper">
+                        {{ form.role }}
+                        <div class="role-descriptions">
+                            <small class="text-muted">
+                                <strong>Student:</strong> Access courses and learning materials<br>
+                                <strong>Instructor:</strong> Create and manage courses<br>
+                                <strong>Administrator:</strong> Manage platform and users
+                            </small>
                         </div>
                     </div>
+                    {% if form.role.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.role.errors }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- Optional Information -->
