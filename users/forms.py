@@ -110,6 +110,12 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password1'].label = 'Password'
         self.fields['password2'].label = 'Confirm Password'
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("A user with this username already exists.")
+        return username
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():

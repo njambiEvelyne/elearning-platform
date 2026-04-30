@@ -59,20 +59,21 @@ def custom_logout(request):
 class RegisterUserView(CreateView):
     template_name = "users/register.html"
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy("users:login")
+    success_url = reverse_lazy("home")  # Redirect to home page
 
     def form_valid(self, form):
         user = form.save()
         messages.success(
             self.request, 
-            f"Welcome {user.first_name}! Your account has been created successfully. You can now log in."
+            f"🎉 Welcome {user.first_name}! Your account has been created successfully. You can now explore our courses or log in to access more features."
         )
+        # Don't automatically log in - let user explore as guest first
         return super().form_valid(form)
     
     def form_invalid(self, form):
         messages.error(
             self.request, 
-            "Please correct the errors below and try again."
+            "❌ Registration failed. Please correct the errors below and try again."
         )
         return super().form_invalid(form)
 
