@@ -66,14 +66,14 @@ class RegisterUserView(CreateView):
         login(self.request, user)
         messages.success(
             self.request, 
-            f"🎉 Welcome {user.first_name or user.username}! Your account has been created successfully. You are now logged in."
+            f"Welcome {user.first_name or user.username}! Your account has been created successfully. You are now logged in."
         )
         return super().form_valid(form)
     
     def form_invalid(self, form):
         messages.error(
             self.request, 
-            "❌ Registration failed. Please correct the errors below and try again."
+            "Registration failed. Please correct the errors below and try again."
         )
         return super().form_invalid(form)
 

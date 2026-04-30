@@ -37,6 +37,10 @@ ALLOWED_HOSTS = ["127.0.0.1", "localhost", "njambievelyne.pythonanywhere.com"]
 
 AUTH_USER_MODEL = "users.User"
 
+# Use custom login path for @login_required redirects
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "users:dashboard_redirect"
+LOGOUT_REDIRECT_URL = "users:login"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
