@@ -282,7 +282,7 @@ def instructor_dashboard(request):
         return redirect('home')
     courses = Course.objects.filter(instructor=request.user).prefetch_related('lessons')
     total_lessons  = sum(c.lessons.count() for c in courses)
-    total_students = sum(c.enrollment_set.count() for c in courses)
+    total_students = sum(c.enrollment.count() for c in courses)
     return render(request, 'courses/instructor_dashboard.html', {
         'courses':        courses,
         'total_lessons':  total_lessons,

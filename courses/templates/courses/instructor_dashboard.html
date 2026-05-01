@@ -187,7 +187,7 @@
                         </span>
                         <span class="meta-pill">
                             <i class="fas fa-users"></i>
-                            {% with count=course.enrollment_set.count %}
+                            {% with count=course.enrollment.count %}
                                 {{ count }} student{{ count|pluralize }}
                             {% endwith %}
                         </span>

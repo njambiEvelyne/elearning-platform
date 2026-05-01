@@ -37,7 +37,7 @@ body { background: var(--bg-page); }
         <h3>{{ course.title }}</h3>
         <div class="course-meta">
           <span><i class="fas fa-list"></i> {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }}</span>
-          <span><i class="fas fa-users"></i> {{ course.enrollment_set.count }} student{{ course.enrollment_set.count|pluralize }}</span>
+          <span><i class="fas fa-users"></i> {{ course.enrollment.count }} student{{ course.enrollment.count|pluralize }}</span>
           <span><i class="fas fa-calendar"></i> Created {{ course.created_at|date:"M d, Y" }}</span>
         </div>
       </div>
@@ -45,7 +45,7 @@ body { background: var(--bg-page); }
         <h4><i class="fas fa-exclamation-triangle me-1"></i> Everything will be permanently deleted:</h4>
         <ul>
           <li>All {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }} and their content</li>
-          <li>All {{ course.enrollment_set.count }} student enrollment{{ course.enrollment_set.count|pluralize }}</li>
+          <li>All {{ course.enrollment.count }} student enrollment{{ course.enrollment.count|pluralize }}</li>
           <li>All student progress data for this course</li>
         </ul>
       </div>
