@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
+{% block title %}{{ lesson.title }} – {{ course.title }} – EduLearn{% endblock %}
 
 {% block content %}
-<div class="lesson-container">
-    <div class="lesson-header">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'courses:course_detail' course.id %}">{{ course.title }}</a>
-                </li>
-                <li class="breadcrumb-item active">{{ lesson.title }}</li>
-            </ol>
-        </nav>
-        
-        <div class="lesson-title-section">
-            <h1>{{ lesson.title }}</h1>
-            {% if is_instructor %}
-                <div class="instructor-actions">
-                    <a href="{% url 'courses:edit_lesson' course.id lesson.id %}" class="btn btn-sm btn-warning">
-                        <i class="fas fa-edit"></i> Edit
+<style>
+    body { background: var(--bg-page); }
+    .page-wrap { padding: 10px 0 50px; }
+
+    /* ── Layout: sidebar + main ── */
+    .lesson-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        align-items: flex-start;
+    }
+
+    /* ── Sidebar: lesson list ── */
+    .sidebar {
+        background: var(--bg-card);
+        border-radius: var(-lass="fas fa-edit"></i> Edit
                     </a>
                     <span class="badge badge-{{ lesson.status }}">{{ lesson.get_status_display }}</span>
                 </div>
