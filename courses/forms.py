@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Course, Lesson, LessonMaterial
+from .models import Course, Lesson, LessonMaterial, CourseNote
 from users.models import User
 
 CTRL = 'form-control'
@@ -56,6 +56,32 @@ class LessonMaterialForm(forms.ModelForm):
         fields = ['title', 'file']
         widgets = {
             'title': forms.TextInput(attrs={'class': CTRL, 'placeholder': 'e.g. Week 1 Notes'}),
+            'file':  forms.FileInput(attrs={'class': CTRL, 'accept': '.pdf,.doc,.docx'}),
+        }
+
+    def clean_file(self):
+        f = self.cleaned_data.get('file')
+        if f:
+            import os
+            _, ext = os.path.splitext(f.name)
+            if ext.lower() not in self.ALLOWED:
+                raise ValidationError(
+                    f"Only {', '.join(self.ALLOWED)} files are allowed. "
+                    f"You uploaded: {ext or 'unknown'}"
+                )
+        return f
+
+
+class CourseNoteForm(forms.ModelForm):
+    """Instructor uploads a course-level PDF / DOC / DOCX note."""
+
+    ALLOWED = ['.pdf', '.doc', '.docx']
+
+    class Meta:
+        model  = CourseNote
+        fields = ['title', 'file']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': CTRL, 'placeholder': 'e.g. Course Overview, Week 1 Slides'}),
             'file':  forms.FileInput(attrs={'class': CTRL, 'accept': '.pdf,.doc,.docx'}),
         }
 

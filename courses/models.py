@@ -8,6 +8,11 @@ def lesson_material_upload_path(instance, filename):
     return f"courses/{instance.lesson.course.id}/lessons/{instance.lesson.id}/{filename}"
 
 
+def course_note_upload_path(instance, filename):
+    """Store course-level notes under media/courses/<course_id>/notes/"""
+    return f"courses/{instance.course.id}/notes/{filename}"
+
+
 class Course(models.Model):
     STATUS_CHOICES = [
         ('pending',  'Pending Approval'),
@@ -77,6 +82,38 @@ class LessonMaterial(models.Model):
 
     def __str__(self):
         return f"{self.lesson.title} — {self.title}"
+
+    @property
+    def extension(self):
+        _, ext = os.path.splitext(self.file.name)
+        return ext.lower()
+
+    @property
+    def icon(self):
+        ext = self.extension
+        if ext == '.pdf':
+            return 'fa-file-pdf'
+        if ext in ('.doc', '.docx'):
+            return 'fa-file-word'
+        return 'fa-file'
+
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+
+class CourseNote(models.Model):
+    """Course-level notes uploaded directly by the instructor."""
+    ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx']
+
+    course      = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='notes')
+    title       = models.CharField(max_length=255)
+    file        = models.FileField(upload_to=course_note_upload_path)
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} — {self.title}"
 
     @property
     def extension(self):
