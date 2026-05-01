@@ -13,6 +13,8 @@ from .views import (
     add_lesson, edit_lesson, delete_lesson,
     # Instructor — material management
     manage_materials, add_material, delete_material, download_material,
+    # Instructor — course notes
+    course_notes, upload_course_note, delete_course_note, download_course_note,
 )
 
 app_name = "courses"
@@ -55,6 +57,16 @@ urlpatterns = [
          delete_material,  name="delete_material"),
     path("materials/<int:material_id>/download/",
          download_material, name="download_material"),
+
+    # ── Instructor — course notes ─────────────────────────
+    path("<int:course_id>/notes/",
+         course_notes,        name="course_notes"),
+    path("<int:course_id>/notes/upload/",
+         upload_course_note,  name="upload_course_note"),
+    path("<int:course_id>/notes/<int:note_id>/delete/",
+         delete_course_note,  name="delete_course_note"),
+    path("notes/<int:note_id>/download/",
+         download_course_note, name="download_course_note"),
 
     # ── API ───────────────────────────────────────────────
     path("", include(router.urls)),

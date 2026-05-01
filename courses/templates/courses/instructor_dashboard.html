@@ -113,7 +113,13 @@
     }
     .btn-delete:hover { background: #ef5350; color: #fff; transform: translateY(-2px); }
 
-    /* Empty state */
+    .btn-notes {
+        background: #e8f5e9; border: 2px solid #a5d6a7;
+        color: #2e7d32; padding: 8px 14px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.85rem;
+        text-decoration: none; transition: all 0.25s;
+    }
+    .btn-notes:hover { background: #2e7d32; color: #fff; transform: translateY(-2px); }
     .empty-state {
         text-align: center; padding: 70px 20px;
         background: rgba(255,255,255,0.1); border-radius: var(--radius-lg);
@@ -186,6 +192,9 @@
                             <i class="fas fa-list"></i> {{ course.lessons.count }} lesson{{ course.lessons.count|pluralize }}
                         </span>
                         <span class="meta-pill">
+                            <i class="fas fa-file-alt"></i> {{ course.notes.count }} note{{ course.notes.count|pluralize }}
+                        </span>
+                        <span class="meta-pill">
                             <i class="fas fa-users"></i>
                             {% with count=course.enrollment.count %}
                                 {{ count }} student{{ count|pluralize }}
@@ -199,11 +208,8 @@
                         <a href="{% url 'courses:manage_lessons' course.id %}" class="btn-manage">
                             <i class="fas fa-cog me-1"></i> Manage Lessons
                         </a>
-                        <a href="{% url 'courses:edit_course' course.id %}" class="btn-edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'courses:delete_course' course.id %}" class="btn-delete">
-                            <i class="fas fa-trash"></i>
+                        <a href="{% url 'courses:course_notes' course.id %}" class="btn-notes" title="Upload Notes">
+                            <i class="fas fa-file-upload"></i>
                         </a>
                     </div>
                 </div>

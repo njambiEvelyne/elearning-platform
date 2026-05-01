@@ -11,9 +11,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Course, Lesson, LessonMaterial
+from .models import Course, Lesson, LessonMaterial, CourseNote
 from .serializers import CourseSerializer, LessonSerializer
-from .forms import AdminCourseForm, LessonForm, LessonMaterialForm
+from .forms import AdminCourseForm, LessonForm, LessonMaterialForm, CourseNoteForm
 from .permissions import IsInstructorOrReadOnly
 from enrollments.models import Enrollment
 from users.models import User
@@ -433,6 +433,76 @@ def download_material(request, material_id):
 
     response = FileResponse(material.file.open('rb'), as_attachment=True,
                             filename=material.filename)
+    return response
+
+
+@login_required
+def course_notes(request, course_id):
+    """List all notes uploaded for a course."""
+    course = get_object_or_404(Course, id=course_id)
+    guard  = _require_instructor(request, course)
+    if guard:
+        return guard
+    notes = course.notes.all().order_by('-uploaded_at')
+    return render(request, 'courses/course_notes.html', {
+        'course': course,
+        'notes':  notes,
+    })
+
+
+@login_required
+def upload_course_note(request, course_id):
+    """Upload a PDF/DOC/DOCX note directly to a course."""
+    course = get_object_or_404(Course, id=course_id)
+    guard  = _require_instructor(request, course)
+    if guard:
+        return guard
+    if request.method == 'POST':
+        form = CourseNoteForm(request.POST, request.FILES)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.course      = course
+            note.uploaded_by = request.user
+            note.save()
+            messages.success(request, f"'{note.title}' uploaded successfully.")
+            return redirect('courses:course_notes', course_id=course.id)
+    else:
+        form = CourseNoteForm()
+    return render(request, 'courses/upload_course_note.html', {
+        'form': form, 'course': course,
+    })
+
+
+@login_required
+def delete_course_note(request, course_id, note_id):
+    """Delete a course-level note."""
+    course = get_object_or_404(Course, id=course_id)
+    note   = get_object_or_404(CourseNote, id=note_id, course=course)
+    guard  = _require_instructor(request, course)
+    if guard:
+        return guard
+    if request.method == 'POST':
+        if note.file and os.path.isfile(note.file.path):
+            os.remove(note.file.path)
+        title = note.title
+        note.delete()
+        messages.success(request, f"'{title}' deleted.")
+        return redirect('courses:course_notes', course_id=course.id)
+    return render(request, 'courses/delete_course_note.html', {
+        'course': course, 'note': note,
+    })
+
+
+@login_required
+def download_course_note(request, note_id):
+    """Serve a course note — enrolled students, instructor, or admin only."""
+    note   = get_object_or_404(CourseNote, id=note_id)
+    course = note.course
+    is_instructor = request.user == course.instructor or request.user.role == 'admin'
+    is_enrolled   = Enrollment.objects.filter(student=request.user, course=course).exists()
+    if not (is_instructor or is_enrolled):
+        return HttpResponseForbidden("You do not have access to this file.")
+    response = FileResponse(note.file.open('rb'), as_attachment=True, filename=note.filename)
     return response
 
 
