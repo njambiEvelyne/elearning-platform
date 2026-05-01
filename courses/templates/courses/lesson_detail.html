@@ -17,267 +17,264 @@
     /* ── Sidebar: lesson list ── */
     .sidebar {
         background: var(--bg-card);
-        border-radius: var(-lass="fas fa-edit"></i> Edit
-                    </a>
-                    <span class="badge badge-{{ lesson.status }}">{{ lesson.get_status_display }}</span>
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="lesson-meta">
-            {% if lesson.duration_minutes > 0 %}
-                <span class="meta-item">
-                    <i class="far fa-clock"></i> {{ lesson.duration_minutes }} minutes
-                </span>
-            {% endif %}
-            <span class="meta-item">
-                <i class="far fa-calendar"></i> {{ lesson.created_at|date:"M d, Y" }}
-            </span>
-        </div>
-    </div>
-
-    <div class="lesson-content">
-        {% if lesson.video_url %}
-            <div class="video-section">
-                <h3><i class="fas fa-play-circle"></i> Video Content</h3>
-                <div class="video-container">
-                    <iframe src="{{ lesson.video_url }}" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-        {% endif %}
-
-        <div class="text-content">
-            <h3><i class="fas fa-file-text"></i> Lesson Content</h3>
-            <div class="content-text">
-                {{ lesson.content|linebreaks }}
-            </div>
-        </div>
-    </div>
-
-    <div class="lesson-navigation">
-        <h4><i class="fas fa-list"></i> Course Lessons</h4>
-        <div class="lessons-nav">
-            {% for nav_lesson in all_lessons %}
-                <div class="nav-lesson-item {% if nav_lesson.id == lesson.id %}active{% endif %}">
-                    <a href="{% url 'courses:lesson_detail' course.id nav_lesson.id %}">
-                        <span class="lesson-number">{{ forloop.counter }}</span>
-                        <span class="lesson-title">{{ nav_lesson.title }}</span>
-                        {% if nav_lesson.duration_minutes > 0 %}
-                            <span class="lesson-duration">{{ nav_lesson.duration_minutes }}min</span>
-                        {% endif %}
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<style>
-    .lesson-container {
-        max-width: 1000px;
-        margin: 20px auto;
-        padding: 0 20px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        position: sticky;
+        top: 80px;
     }
+    .sidebar-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+        color: #fff; padding: 18px 20px;
+    }
+    .sidebar-header h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+    .sidebar-header p  { font-size: 0.82rem; opacity: 0.85; margin: 3px 0 0; }
 
+    .lesson-nav-list { padding: 10px 0; }
+    .nav-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 18px; text-decoration: none;
+        color: var(--text-dark); transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: var(--primary-pale); color: var(--primary); border-left-color: var(--primary-light); }
+    .nav-item.active { background: var(--primary-pale); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+    .nav-num {
+        width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+        background: #dce8f8; color: var(--primary-dark);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.78rem; font-weight: 700;
+    }
+    .nav-item.active .nav-num { background: var(--primary); color: #fff; }
+    .nav-title { flex: 1; font-size: 0.9rem; line-height: 1.3; }
+    .nav-dur { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* ── Main content ── */
+    .lesson-main { display: flex; flex-direction: column; gap: 22px; }
+
+    /* Breadcrumb + title card */
     .lesson-header {
-        margin-bottom: 30px;
+        background: var(--bg-card); border-radius: var(--radius-lg);
+        padding: 28px 32px; box-shadow: var(--shadow-md);
     }
+    .breadcrumb-nav { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; }
+    .breadcrumb-nav a { color: var(--primary-light); text-decoration: none; }
+    .breadcrumb-nav a:hover { text-decoration: underline; }
+    .breadcrumb-nav span { margin: 0 6px; }
 
-    .breadcrumb {
-        background: none;
-        padding: 0;
-        margin-bottom: 20px;
+    .lesson-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .lesson-title-row h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary-dark); margin: 0; line-height: 1.3; }
+
+    .instructor-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-edit-lesson {
+        background: transparent; border: 2px solid #f57f17; color: #f57f17;
+        padding: 8px 18px; border-radius: var(--radius-pill); font-weight: 600;
+        font-size: 0.88rem; text-decoration: none; transition: all 0.25s;
     }
-
-    .lesson-title-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
+    .btn-edit-lesson:hover { background: #f57f17; color: #fff; }
+    .btn-materials {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 8px 18px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.88rem;
+        text-decoration: none; transition: all 0.25s;
     }
+    .btn-materials:hover { transform: translateY(-2px); color: #fff; }
 
-    .lesson-title-section h1 {
-        color: #2c3e50;
-        margin: 0;
-        font-size: 28px;
+    .lesson-meta-row { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+    .meta-chip {
+        display: flex; align-items: center; gap: 6px;
+        background: var(--primary-pale); color: var(--primary-dark);
+        padding: 5px 12px; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 600;
     }
+    .status-pill { padding: 5px 14px; border-radius: var(--radius-pill); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; }
+    .status-published { background: #e8f5e9; color: #2e7d32; }
+    .status-draft     { background: #fff8e1; color: #f57f17; }
 
-    .instructor-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    /* Content sections */
+    .content-card {
+        background: var(--bg-card); border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md); overflow: hidden;
     }
-
-    .lesson-meta {
-        display: flex;
-        gap: 20px;
-        color: #6c757d;
-        font-size: 14px;
+    .content-card-header {
+        background: var(--primary-pale); padding: 16px 28px;
+        border-bottom: 2px solid #dce8f8;
+        display: flex; align-items: center; gap: 10px;
     }
+    .content-card-header h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary-dark); margin: 0; }
+    .content-card-body { padding: 28px; }
 
-    .meta-item i {
-        margin-right: 5px;
+    /* Video embed */
+    .video-wrap {
+        position: relative; width: 100%; padding-bottom: 56.25%;
+        background: #000; border-radius: var(--radius-sm); overflow: hidden;
     }
+    .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
 
-    .lesson-content {
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
+    /* Text content */
+    .lesson-text { font-size: 1.02rem; line-height: 1.85; color: #333; }
+    .lesson-text p { margin-bottom: 1.1em; }
+
+    /* Materials list */
+    .materials-list { display: flex; flex-direction: column; gap: 12px; }
+    .material-row {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 18px; background: #f5f9ff;
+        border: 2px solid #dce8f8; border-radius: var(--radius-md);
+        transition: all 0.25s;
     }
-
-    .video-section, .text-content {
-        padding: 30px;
-        border-bottom: 1px solid #e9ecef;
+    .material-row:hover { border-color: var(--primary-light); background: var(--primary-pale); }
+    .mat-icon-sm {
+        width: 42px; height: 42px; border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
     }
-
-    .text-content:last-child {
-        border-bottom: none;
+    .mat-icon-sm.pdf  { background: #fce4ec; color: #e53935; }
+    .mat-icon-sm.word { background: #e3f2fd; color: #1565c0; }
+    .mat-icon-sm.file { background: #f3e5f5; color: #7b1fa2; }
+    .mat-name { flex: 1; font-weight: 600; color: var(--primary-dark); font-size: 0.95rem; }
+    .mat-sub  { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+    .btn-dl {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: #fff; border: none; padding: 8px 18px;
+        border-radius: var(--radius-pill); font-weight: 600; font-size: 0.85rem;
+        text-decoration: none; transition: all 0.25s; white-space: nowrap;
     }
+    .btn-dl:hover { transform: translateY(-2px); color: #fff; }
 
-    .video-section h3, .text-content h3 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-        font-size: 20px;
+    .no-materials { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .lesson-layout { grid-template-columns: 1fr; }
+        .sidebar { position: static; }
     }
-
-    .video-container {
-        position: relative;
-        width: 100%;
-        height: 0;
-        padding-bottom: 56.25%; /* 16:9 aspect ratio */
-        background: #000;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .video-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-    .content-text {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #333;
-    }
-
-    .lesson-navigation {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 25px;
-    }
-
-    .lesson-navigation h4 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
-
-    .lessons-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .nav-lesson-item {
-        border-radius: 6px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .nav-lesson-item.active {
-        background: #007bff;
-    }
-
-    .nav-lesson-item.active a {
-        color: white;
-    }
-
-    .nav-lesson-item:not(.active):hover {
-        background: #e9ecef;
-    }
-
-    .nav-lesson-item a {
-        display: flex;
-        align-items: center;
-        padding: 12px 15px;
-        text-decoration: none;
-        color: #495057;
-        transition: color 0.3s ease;
-    }
-
-    .lesson-number {
-        background: #6c757d;
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: bold;
-        margin-right: 12px;
-        flex-shrink: 0;
-    }
-
-    .nav-lesson-item.active .lesson-number {
-        background: white;
-        color: #007bff;
-    }
-
-    .lesson-title {
-        flex-grow: 1;
-        font-weight: 500;
-    }
-
-    .lesson-duration {
-        font-size: 12px;
-        color: #6c757d;
-        background: #e9ecef;
-        padding: 2px 8px;
-        border-radius: 12px;
-    }
-
-    .nav-lesson-item.active .lesson-duration {
-        background: rgba(255,255,255,0.2);
-        color: white;
-    }
-
-    .badge-published {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .badge-draft {
-        background-color: #ffc107;
-        color: #212529;
-    }
-
-    @media (max-width: 768px) {
-        .lesson-title-section {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .lesson-meta {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .video-section, .text-content {
-            padding: 20px;
-        }
-
-        .lesson-navigation {
-            padding: 20px;
-        }
+    @media (max-width: 600px) {
+        .lesson-header { padding: 20px; }
+        .content-card-body { padding: 20px; }
+        .lesson-title-row h1 { font-size: 1.4rem; }
     }
 </style>
 
+<div class="page-wrap">
+    <div class="lesson-layout">
+
+        <!-- ── Sidebar ── -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-list me-2"></i>{{ course.title }}</h3>
+                <p>{{ all_lessons|length }} lesson{{ all_lessons|length|pluralize }}</p>
+            </div>
+            <div class="lesson-nav-list">
+                {% for nav in all_lessons %}
+                    <a href="{% url 'courses:lesson_detail' course.id nav.id %}"
+                       class="nav-item {% if nav.id == lesson.id %}active{% endif %}">
+                        <span class="nav-num">{{ forloop.counter }}</span>
+                        <span class="nav-title">{{ nav.title }}</span>
+                        {% if nav.duration_minutes > 0 %}
+                            <span class="nav-dur">{{ nav.duration_minutes }}m</span>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- ── Main ── -->
+        <div class="lesson-main">
+
+            <!-- Header -->
+            <div class="lesson-header">
+                <div class="breadcrumb-nav">
+                    <a href="{% url 'courses:courses_list' %}">Courses</a>
+                    <span>/</span>
+                    <a href="{% url 'courses:course_detail' course.id %}">{{ course.title }}</a>
+                    <span>/</span> {{ lesson.title }}
+                </div>
+                <div class="lesson-title-row">
+                    <h1>{{ lesson.title }}</h1>
+                    {% if is_instructor %}
+                        <div class="instructor-btns">
+                            <a href="{% url 'courses:edit_lesson' course.id lesson.id %}" class="btn-edit-lesson">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <a href="{% url 'courses:manage_materials' course.id lesson.id %}" class="btn-materials">
+                                <i class="fas fa-paperclip me-1"></i> Materials
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="lesson-meta-row">
+                    {% if lesson.duration_minutes > 0 %}
+                        <span class="meta-chip"><i class="fas fa-clock"></i> {{ lesson.duration_minutes }} min</span>
+                    {% endif %}
+                    <span class="meta-chip"><i class="fas fa-calendar"></i> {{ lesson.created_at|date:"M d, Y" }}</span>
+                    {% if is_instructor %}
+                        <span class="status-pill status-{{ lesson.status }}">{{ lesson.get_status_display }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Video -->
+            {% if lesson.video_url %}
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-play-circle" style="color:var(--primary-light)"></i>
+                    <h3>Tutorial Video</h3>
+                </div>
+                <div class="content-card-body">
+                    <div class="video-wrap">
+                        <iframe src="{{ lesson.video_url }}" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Text notes -->
+            {% if lesson.content %}
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-file-alt" style="color:var(--primary-light)"></i>
+                    <h3>Lesson Notes</h3>
+                </div>
+                <div class="content-card-body">
+                    <div class="lesson-text">{{ lesson.content|linebreaks }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Downloadable materials -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-paperclip" style="color:var(--primary-light)"></i>
+                    <h3>Course Materials</h3>
+                </div>
+                <div class="content-card-body">
+                    {% if materials %}
+                        <div class="materials-list">
+                            {% for mat in materials %}
+                            <div class="material-row">
+                                <div class="mat-icon-sm {% if mat.extension == '.pdf' %}pdf{% elif mat.extension in '.doc .docx' %}word{% else %}file{% endif %}">
+                                    <i class="fas {{ mat.icon }}"></i>
+                                </div>
+                                <div style="flex:1">
+                                    <div class="mat-name">{{ mat.title }}</div>
+                                    <div class="mat-sub">{{ mat.filename }} &nbsp;·&nbsp; {{ mat.uploaded_at|date:"M d, Y" }}</div>
+                                </div>
+                                <a href="{% url 'courses:download_material' mat.id %}" class="btn-dl">
+                                    <i class="fas fa-download me-1"></i> Download
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-materials">
+                            <i class="fas fa-folder-open fa-2x mb-2" style="color:#dce8f8"></i>
+                            <p>No materials have been uploaded for this lesson yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div><!-- /lesson-main -->
+    </div><!-- /lesson-layout -->
+</div>
 {% endblock %}
